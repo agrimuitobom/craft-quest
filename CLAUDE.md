@@ -3,6 +3,8 @@
 Minecraft Education と並べて使うクエスト型プログラミング学習アプリ「クラフトクエスト」。
 対象は小中学生（初学者〜中級者）。UI の文言はひらがな多め・短い文で書く。
 
+**作業を始める前に `docs/HANDOFF.md`（経緯・未確認事項・次にやること）を読むこと。**
+
 ## スタック
 
 - Next.js 15（App Router）+ TypeScript + Tailwind CSS 3 + lucide-react
