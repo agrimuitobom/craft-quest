@@ -1,7 +1,7 @@
-import { Brain, Crown, Flame, Footprints, Pyramid, Repeat, Route, Sparkles, type LucideIcon } from "lucide-react";
+import { Brain, Castle, Construction, Crown, Flame, Footprints, Pyramid, Repeat, Route, Sparkles, Wheat, type LucideIcon } from "lucide-react";
 import type { Badge } from "@/types/quest";
 
-const ICONS: Record<Badge["icon"], LucideIcon> = { Footprints, Repeat, Pyramid, Route, Sparkles, Flame, Brain, Crown };
+const ICONS: Record<Badge["icon"], LucideIcon> = { Footprints, Repeat, Construction, Pyramid, Wheat, Route, Castle, Sparkles, Flame, Brain, Crown };
 
 export function BadgeIcon({ badge, earned = true, size = 28 }: { badge: Badge; earned?: boolean; size?: number }) {
   const Icon = ICONS[badge.icon];

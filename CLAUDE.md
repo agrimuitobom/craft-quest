@@ -17,6 +17,7 @@ Minecraft Education と並べて使うクエスト型プログラミング学習
 
 - `npm run dev` / `npm run build`
 - `npm run test:rules` … Firestore ルールのテスト（Java 必須）。ルールを変えたら必ず実行
+- `npm run test:quests` … クエスト定義のテスト（模範解答は合格・ひな形は不合格）。クエストを変えたら必ず実行
 - `npm run emulators` + `.env.local` に `NEXT_PUBLIC_USE_EMULATORS=1` でローカル検証
 - `npm run deploy:rules` … ルールの本番反映（CI では反映しない）
 
