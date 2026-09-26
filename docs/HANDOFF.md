@@ -60,7 +60,7 @@ Minecraft Education（以下マイクラEE）の横に並べて使う、クエ�
 
 ### 確認できていないこと（最優先で確認）
 
-1 と 2 は確認済み。3 が残っています。
+3 つとも確認済み（2026-09-26）。本番は https://craft-quest-ef2ef.web.app で公開中。
 
 1. ~~`npm run test:rules` を一度も実行できていない~~ → **2026-09-26 に実行し、16 項目すべて合格**
    - 原因は `node --test tests/` の書き方だった（Node 22 ではフォルダを指定できない）
@@ -69,7 +69,7 @@ Minecraft Education（以下マイクラEE）の横に並べて使う、クエ�
    - ポップアップのログインが apis.google.com に届かなかった
    - 2026-09-26：本番の設定値でビルドが通ること、Firestore が作成済みで未ログインの読み取りが拒否されることは確認した
    - クラウドの作業環境からは `*.firebaseapp.com` への接続が遮断されるため、ログインは先生の PC で確認する
-3. **GitHub Actions の初回の結果が未確認**
+3. ~~GitHub Actions の初回の結果が未確認~~ → **PR #1 のプレビュー、main への merge 後の本番公開とも成功**
    - push は済んでいる
    - Secret がまだ未登録なので、公開ジョブは失敗しているはず（想定どおり）
    - main への push で本番公開される。いまの作業は `claude/eager-franklin-g9tg3b` ブランチにある
