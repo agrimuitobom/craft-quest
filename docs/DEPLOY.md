@@ -71,6 +71,8 @@ npx firebase login          # ブラウザで先生のアカウントを選ぶ
    npm run deploy:rules
    ```
 
+> `deploy:rules` は公開先を `craft-quest-ef2ef` に固定しています。`npx firebase deploy` を直接打つと、`firebase use` で選んだ別のプロジェクトに公開されることがあるので使わないでください。
+
 > ルールはコードの自動公開（手順 6）には含まれません。`firestore.rules` を変えたときは、このコマンドを手動で実行してください。
 
 ## 5. 手元で動作確認（任意）
