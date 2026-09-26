@@ -115,6 +115,18 @@ export interface Quest {
  */
 export type QuestStatus = "locked" | "available" | "in_progress" | "verifying" | "cleared" | "mastered";
 
+/** クリア時のふりかえり（メタ認知）。選択肢の文言は src/data/reflection.ts */
+export type StuckPoint = "none" | "goal" | "code" | "game" | "bug";
+export type SolvedBy = "self" | "hint" | "reread" | "friend" | "teacher";
+export interface Reflection {
+  stuck: StuckPoint;
+  /** stuck が "none" のときはなし */
+  solved?: SolvedBy;
+  /** つぎに使えそうなこと（任意・60 文字まで） */
+  note?: string;
+  at: string;
+}
+
 export interface QuestProgress {
   status: QuestStatus;
   hintsOpened: number; // 開いたヒントの最大レベル(0-3)
@@ -124,6 +136,8 @@ export interface QuestProgress {
   bestExp?: number;
   lastCode?: string;
   language: Language;
+  /** いちばん新しいクリア時のふりかえり */
+  reflection?: Reflection;
 }
 
 export interface UserProgress {
@@ -160,13 +174,16 @@ export interface StudentDoc {
 }
 
 /** users/{uid}/events/{id}：学習ログ（先生のつまずき分析用・追記のみ） */
-export type LearningEventType = "start" | "hint" | "fail" | "clear";
+export type LearningEventType = "start" | "hint" | "fail" | "clear" | "reflect";
 export interface LearningEvent {
   type: LearningEventType;
   questId: string;
   hintLevel?: number;
   attempt?: number;
   exp?: number;
+  /** reflect のみ（ひとことは個人の記録なのでログには入れない） */
+  stuck?: StuckPoint;
+  solved?: SolvedBy;
   at?: unknown;
 }
 

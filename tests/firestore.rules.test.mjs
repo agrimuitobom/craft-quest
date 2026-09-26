@@ -104,6 +104,24 @@ test("学習ログは書き換えられない", async () => {
   });
   await assertFails(updateDoc(doc(db, "users", "hanako", "events", id), { type: "clear" }));
 });
+test("ふりかえりのログは選択肢の値なら追記できる", async () => {
+  const events = collection(student("hanako"), "users", "hanako", "events");
+  await assertSucceeds(addDoc(events, { type: "reflect", questId: "q01-fence", stuck: "code", solved: "hint", at: serverTimestamp() }));
+  await assertSucceeds(addDoc(events, { type: "reflect", questId: "q01-fence", stuck: "none", at: serverTimestamp() }));
+});
+test("ふりかえりのログに選択肢以外の値やひとことは入れられない", async () => {
+  const events = collection(student("hanako"), "users", "hanako", "events");
+  await assertFails(addDoc(events, { type: "reflect", questId: "q01-fence", stuck: "むずかしかった", at: serverTimestamp() }));
+  await assertFails(addDoc(events, { type: "reflect", questId: "q01-fence", stuck: "code", solved: "google", at: serverTimestamp() }));
+  await assertFails(addDoc(events, { type: "reflect", questId: "q01-fence", stuck: "code", note: "ひとこと", at: serverTimestamp() }));
+  await assertFails(addDoc(events, { type: "reflect", questId: "q01-fence", at: serverTimestamp() }));
+  await assertFails(addDoc(events, { type: "hint", questId: "q01-fence", stuck: "code", at: serverTimestamp() }));
+});
+test("ふりかえりつきの進捗を保存できる", async () => {
+  const p = progress(130);
+  p.quests = { "q01-fence": { status: "cleared", hintsOpened: 1, attempts: 2, language: "python", reflection: { stuck: "code", solved: "hint", note: "くりかえしの中は右にずらす", at: "2026-09-26T12:00:00.000Z" } } };
+  await assertSucceeds(updateDoc(doc(student("hanako"), "users", "hanako"), { progress: p, updatedAt: serverTimestamp() }));
+});
 test("他人の学習ログは書けない", async () => {
   await assertFails(addDoc(collection(student("taro"), "users", "hanako", "events"), { type: "clear", questId: "q01-fence", at: serverTimestamp() }));
 });

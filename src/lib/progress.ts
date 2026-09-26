@@ -1,6 +1,6 @@
 import { QUESTS } from "@/data/quests";
 import { LEVEL_UNLOCKS, levelFromExp } from "@/data/rewards";
-import type { Language, Quest, QuestProgress, QuestStatus, UserProgress } from "@/types/quest";
+import type { Language, Quest, QuestProgress, QuestStatus, Reflection, UserProgress } from "@/types/quest";
 
 // ============================================================
 // 進捗の状態遷移（純粋関数）と LocalStorage 永続化
@@ -164,6 +164,22 @@ export function completeQuest(p: UserProgress, quest: Quest, code: string): { ne
     next,
     reward: { baseExp, bonusExp, totalExp, newBadges, newUnlocks, levelBefore, levelAfter, firstClear, mastered: status === "mastered" },
   };
+}
+
+export const REFLECTION_NOTE_MAX = 60;
+
+/** クリア後のふりかえりを保存（クリア済みのクエストだけ。いちばん新しいもので上書き） */
+export function saveReflection(p: UserProgress, questId: string, r: Omit<Reflection, "at">, now = new Date()): UserProgress {
+  const cur = p.quests[questId];
+  if (!cur || !isCleared(cur.status)) return p;
+  const note = r.note?.trim().slice(0, REFLECTION_NOTE_MAX);
+  const reflection: Reflection = {
+    stuck: r.stuck,
+    ...(r.stuck !== "none" && r.solved ? { solved: r.solved } : {}),
+    ...(note ? { note } : {}),
+    at: now.toISOString(),
+  };
+  return patchQuest(p, questId, { reflection });
 }
 
 /** 連続学習日数の更新（アプリ起動時に呼ぶ） */
