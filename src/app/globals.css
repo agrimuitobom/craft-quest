@@ -1,0 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-stone-900 font-body text-white antialiased;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+  :focus-visible {
+    @apply outline outline-4 outline-offset-2 outline-gold-400;
+  }
+}
+
+@layer components {
+  /* マイクラ風のブロックボタン。タップ領域は最低 48px */
+  .btn-block {
+    @apply inline-flex min-h-[48px] items-center justify-center gap-2 rounded-md px-5 font-pixel text-lg shadow-block transition active:translate-y-[2px] active:shadow-press disabled:cursor-not-allowed disabled:opacity-40;
+  }
+  .btn-grass {
+    @apply btn-block bg-grass-500 text-white hover:bg-grass-400;
+  }
+  .btn-gold {
+    @apply btn-block bg-gold-400 text-stone-900 hover:bg-gold-300;
+  }
+  .btn-stone {
+    @apply btn-block bg-stone-700 text-white hover:bg-stone-800;
+  }
+  .panel {
+    @apply rounded-xl border-4 border-stone-700 bg-stone-800/90 p-4 sm:p-5;
+  }
+  .panel-title {
+    @apply mb-3 flex items-center gap-2 font-pixel text-xl text-gold-300;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

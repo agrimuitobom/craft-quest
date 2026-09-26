@@ -1,0 +1,110 @@
+rules_version = '2';
+
+// ============================================================
+// クラフトクエスト Firestore セキュリティルール
+//
+//  users/{uid}                … 生徒の進捗（本人のみ読み書き／先生は閲覧のみ）
+//  users/{uid}/events/{id}    … 学習ログ（本人は追記のみ／先生は閲覧のみ）
+//  teachers/{email}           … 先生の名簿（Firebase コンソールで手動登録）
+//
+// ★ schoolDomain() を学校の Google Workspace ドメインに書き換えてから
+//   `firebase deploy --only firestore:rules` でデプロイしてください。
+// ============================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ★ここを書き換える（例: 'saijo-ah.ed.jp'）
+    function schoolDomain() {
+      return 'example.ed.jp';
+    }
+
+    function signedIn() {
+      return request.auth != null
+        && request.auth.token.email is string
+        && request.auth.token.email_verified == true;
+    }
+
+    function myEmail() {
+      return request.auth.token.email.lower();
+    }
+
+    function isSchoolGoogleUser() {
+      return signedIn()
+        && request.auth.token.firebase.sign_in_provider == 'google.com'
+        && myEmail().split('@')[1] == schoolDomain();
+    }
+
+    function isTeacher() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/teachers/$(myEmail()));
+    }
+
+    function isOwner(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    // ---------- データ検証 ----------
+    function validProfile(p) {
+      return p is map
+        && p.keys().hasOnly(['className', 'studentNumber', 'nickname'])
+        && p.className is string && p.className.size() >= 1 && p.className.size() <= 20
+        && p.studentNumber is int && p.studentNumber >= 1 && p.studentNumber <= 99
+        && p.nickname is string && p.nickname.size() >= 1 && p.nickname.size() <= 12;
+    }
+
+    function validProgress(p) {
+      return p is map
+        && p.version == 1
+        && p.exp is int && p.exp >= 0 && p.exp <= 100000
+        && p.quests is map
+        && p.badges is list && p.badges.size() <= 50;
+    }
+
+    function validUserDoc(d) {
+      return d.keys().hasOnly(['email', 'googleName', 'profile', 'progress', 'createdAt', 'updatedAt'])
+        && d.email == myEmail()
+        && d.googleName is string && d.googleName.size() <= 100
+        && validProfile(d.profile)
+        && validProgress(d.progress)
+        && d.updatedAt == request.time;
+    }
+
+    // ---------- 生徒の進捗 ----------
+    match /users/{uid} {
+      allow read: if isOwner(uid) || isTeacher();
+
+      allow create: if isOwner(uid)
+        && (isSchoolGoogleUser() || isTeacher())
+        && validUserDoc(request.resource.data)
+        && request.resource.data.createdAt == request.time;
+
+      allow update: if isOwner(uid)
+        && (isSchoolGoogleUser() || isTeacher())
+        && validUserDoc(request.resource.data)
+        && request.resource.data.createdAt == resource.data.createdAt;
+
+      // 削除は先生もアプリからは不可（年度末の整理はコンソールで）
+      allow delete: if false;
+
+      // ---------- 学習ログ（追記のみ） ----------
+      match /events/{eventId} {
+        allow read: if isOwner(uid) || isTeacher();
+        allow create: if isOwner(uid)
+          && (isSchoolGoogleUser() || isTeacher())
+          && request.resource.data.keys().hasOnly(['type', 'questId', 'hintLevel', 'attempt', 'exp', 'at'])
+          && request.resource.data.type in ['start', 'hint', 'fail', 'clear']
+          && request.resource.data.questId is string
+          && request.resource.data.questId.size() <= 40
+          && request.resource.data.at == request.time;
+        allow update, delete: if false;
+      }
+    }
+
+    // ---------- 先生名簿（自分のドキュメントの有無だけ確認できる） ----------
+    match /teachers/{email} {
+      allow get: if signedIn() && myEmail() == email;
+      allow list, write: if false;
+    }
+  }
+}

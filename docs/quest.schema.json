@@ -1,0 +1,116 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/craft-quest/quest.schema.json",
+  "title": "CraftQuest Quest",
+  "description": "マイクラEE向けクエスト1本分の定義。src/types/quest.ts の Quest 型と対応。",
+  "type": "object",
+  "required": ["id", "area", "tier", "order", "title", "mapPos", "prerequisites", "concepts", "story", "objective", "goals", "starter", "hints", "validation", "reward", "solution"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^q\\d{2}-[a-z0-9-]+$", "description": "一意なID（例: q01-fence）" },
+    "area": { "enum": ["meadow", "village", "desert", "cave"] },
+    "tier": { "enum": ["beginner", "intermediate", "advanced"] },
+    "order": { "type": "integer", "minimum": 1 },
+    "title": { "type": "string", "maxLength": 30 },
+    "mapPos": {
+      "type": "object",
+      "required": ["x", "y"],
+      "properties": { "x": { "type": "number", "minimum": 0, "maximum": 100 }, "y": { "type": "number", "minimum": 0, "maximum": 100 } }
+    },
+    "prerequisites": { "type": "array", "items": { "type": "string" }, "description": "すべてクリア済みで available になる" },
+    "concepts": {
+      "type": "array",
+      "items": { "enum": ["sequence", "loop", "nested-loop", "variable", "condition", "function", "event", "algorithm"] },
+      "minItems": 1
+    },
+    "estimatedMinutes": { "type": "integer", "minimum": 5 },
+    "story": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["npc", "text"],
+        "properties": { "npc": { "enum": ["villager", "blacksmith", "sage", "agent"] }, "text": { "type": "string", "maxLength": 80 } }
+      }
+    },
+    "objective": { "type": "string" },
+    "goals": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+    "starter": {
+      "type": "object",
+      "required": ["worldSetup", "blocks", "python"],
+      "properties": {
+        "worldSetup": { "type": "array", "items": { "type": "string" } },
+        "blocks": { "type": "array", "items": { "$ref": "#/$defs/blockNode" } },
+        "python": { "type": "string", "description": "MakeCode Python 形式。空欄は ______ (アンダースコア3つ以上)" }
+      }
+    },
+    "hints": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "required": ["level", "kind", "title", "body"],
+        "properties": {
+          "level": { "enum": [1, 2, 3] },
+          "kind": { "enum": ["observe", "focus", "partial"], "description": "1:観察 2:焦点 3:部分コード" },
+          "title": { "type": "string" },
+          "body": { "type": "string" },
+          "snippet": { "type": "string", "description": "level 3 のみ。完成コードではなく穴あき" }
+        }
+      }
+    },
+    "validation": {
+      "type": "object",
+      "required": ["codeRules", "observations"],
+      "properties": {
+        "codeRules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["type", "pattern", "message"],
+            "properties": {
+              "type": { "enum": ["contains", "notContains", "minCount", "maxCount"] },
+              "pattern": { "type": "string", "description": "JavaScript 正規表現（コメント除去後のコードに適用）" },
+              "flags": { "type": "string" },
+              "min": { "type": "integer" },
+              "max": { "type": "integer" },
+              "message": { "type": "string", "description": "NG時に子どもに見せる言葉。答えではなく気づきを促す" }
+            }
+          }
+        },
+        "observations": { "type": "array", "items": { "type": "string" }, "minItems": 1, "description": "ゲーム内で目視確認する項目" }
+      }
+    },
+    "reward": {
+      "type": "object",
+      "required": ["exp", "noHintBonus"],
+      "properties": {
+        "exp": { "type": "integer" },
+        "noHintBonus": { "type": "integer" },
+        "badgeId": { "type": "string" },
+        "unlock": {
+          "type": "object",
+          "properties": { "type": { "enum": ["title", "skin"] }, "id": { "type": "string" } }
+        }
+      }
+    },
+    "solution": {
+      "type": "object",
+      "required": ["python", "blocksNote"],
+      "properties": { "python": { "type": "string" }, "blocksNote": { "type": "string" } }
+    }
+  },
+  "$defs": {
+    "blockNode": {
+      "type": "object",
+      "required": ["category", "label"],
+      "properties": {
+        "category": { "enum": ["player", "agent", "loops", "logic", "variables", "blocks", "functions", "positions"] },
+        "label": { "type": "string" },
+        "blank": { "type": "boolean" },
+        "children": { "type": "array", "items": { "$ref": "#/$defs/blockNode" } },
+        "elseChildren": { "type": "array", "items": { "$ref": "#/$defs/blockNode" } }
+      }
+    }
+  }
+}
