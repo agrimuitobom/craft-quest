@@ -82,6 +82,7 @@ npm run dev   # http://localhost:3000
 ```
 
 - `http://localhost` は Firebase Authentication の「承認済みドメイン」に最初から入っているので、そのままログインできます
+- ログイン後に「このアカウントは使えません」と出るときは、ルールが未公開（初期ルールのまま）のことが多いです。手順 4 の `npm run deploy:rules` を確認してください
 - Firebase の設定値はリポジトリの `.env` に入っているので、ファイルを作る必要はありません（別のプロジェクトを使うときは `.env` を書き換える）
 - ログインなしの「ローカルモード」で動かすときは、`.env.local` に `NEXT_PUBLIC_FIREBASE_API_KEY=` の 1 行を書きます
 

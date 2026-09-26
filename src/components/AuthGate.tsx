@@ -57,7 +57,9 @@ function WrongDomainCard() {
       <p className="text-sm text-white/80">
         {user?.email} でログインしています。
         <br />
-        {ALLOWED_DOMAIN ? `@${ALLOWED_DOMAIN} の学校アカウントで` : "学校のアカウントで"}ログインし直してください。
+        {ALLOWED_DOMAIN
+          ? `@${ALLOWED_DOMAIN} の学校アカウントでログインし直してください。`
+          : "このがめんを先生に見せてください。"}
       </p>
       <button onClick={signOut} className="btn-stone w-full">
         <LogOut aria-hidden /> ログアウトして切り替える
