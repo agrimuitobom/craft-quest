@@ -73,6 +73,14 @@ service cloud.firestore {
         && d.updatedAt == request.time;
     }
 
+    // ふりかえり（reflect）のログ：選択肢の値だけ。ひとことはログに入れない
+    function validReflectLog(d) {
+      return d.type == 'reflect'
+        ? (d.stuck in ['none', 'goal', 'code', 'game', 'bug']
+            && (!('solved' in d) || d.solved in ['self', 'hint', 'reread', 'friend', 'teacher']))
+        : !('stuck' in d) && !('solved' in d);
+    }
+
     // ---------- 生徒の進捗 ----------
     match /users/{uid} {
       allow read: if isOwner(uid) || isTeacher();
@@ -95,10 +103,11 @@ service cloud.firestore {
         allow read: if isOwner(uid) || isTeacher();
         allow create: if isOwner(uid)
           && (isAllowedGoogleUser() || isTeacher())
-          && request.resource.data.keys().hasOnly(['type', 'questId', 'hintLevel', 'attempt', 'exp', 'at'])
-          && request.resource.data.type in ['start', 'hint', 'fail', 'clear']
+          && request.resource.data.keys().hasOnly(['type', 'questId', 'hintLevel', 'attempt', 'exp', 'stuck', 'solved', 'at'])
+          && request.resource.data.type in ['start', 'hint', 'fail', 'clear', 'reflect']
           && request.resource.data.questId is string
           && request.resource.data.questId.size() <= 40
+          && validReflectLog(request.resource.data)
           && request.resource.data.at == request.time;
         allow update, delete: if false;
       }

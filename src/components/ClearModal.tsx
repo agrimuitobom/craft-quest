@@ -4,9 +4,11 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowUp, Map, RotateCcw, Star } from "lucide-react";
 import type { ClearReward } from "@/lib/progress";
+import type { Reflection } from "@/types/quest";
 import { BADGES, levelFromExp, UNLOCKABLES } from "@/data/rewards";
 import { BadgeIcon } from "./BadgeIcon";
 import { AgentAvatar } from "./AgentAvatar";
+import { ReflectionForm } from "./ReflectionForm";
 
 /** クリア演出：EXPカウントアップ → バー伸長 → レベルアップ → バッジ/解放 の順に表示 */
 export function ClearModal({
@@ -15,12 +17,14 @@ export function ClearModal({
   stars,
   skin,
   onClose,
+  onReflect,
 }: {
   reward: ClearReward;
   expBefore: number;
   stars: number;
   skin: string;
   onClose: () => void;
+  onReflect: (r: Omit<Reflection, "at">) => void;
 }) {
   const [shown, setShown] = useState(0);
   const [phase, setPhase] = useState<0 | 1 | 2>(0); // 0:カウント中 1:レベル表示 2:報酬表示
@@ -61,8 +65,8 @@ export function ClearModal({
   const levelUp = reward.levelAfter > reward.levelBefore;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4" role="dialog" aria-modal="true" aria-labelledby="clear-h">
-      <div ref={dialogRef} tabIndex={-1} className="relative w-full max-w-md animate-pop rounded-2xl border-4 border-gold-400 bg-stone-800 p-6 text-center outline-none">
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/75 p-4" role="dialog" aria-modal="true" aria-labelledby="clear-h">
+      <div ref={dialogRef} tabIndex={-1} className="relative my-auto max-h-full w-full max-w-md animate-pop overflow-y-auto rounded-2xl border-4 border-gold-400 bg-stone-800 p-6 text-center outline-none">
         {/* 浮かび上がる +EXP パーティクル */}
         {reward.totalExp > 0 && phase === 0 && (
           <div className="pointer-events-none absolute inset-x-0 top-24" aria-hidden>
@@ -158,6 +162,8 @@ export function ClearModal({
         {!reward.mastered && phase === 2 && (
           <p className="mt-4 text-sm text-white/70">ヒントなしで再挑戦すると、星3つ＆ボーナスEXPがもらえるよ！</p>
         )}
+
+        {phase === 2 && <ReflectionForm onSave={onReflect} />}
 
         <div className="mt-6 flex flex-col gap-2 sm:flex-row">
           <button onClick={onClose} className="btn-stone flex-1">

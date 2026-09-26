@@ -10,6 +10,7 @@ import {
   isCleared,
   openHint,
   recordFailedAttempt,
+  saveReflection,
   setLanguage,
   startQuest,
   type ClearReward,
@@ -207,6 +208,10 @@ export function QuestDetail({ id }: { id: string }) {
           stars={clear.stars}
           skin={progress.equippedSkin}
           onClose={() => setClear(null)}
+          onReflect={(r) => {
+            update((p) => saveReflection(p, quest.id, r));
+            logEvent({ type: "reflect", questId: quest.id, stuck: r.stuck, solved: r.solved });
+          }}
         />
       )}
     </div>

@@ -2,11 +2,12 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { collection, getDocs, Timestamp } from "firebase/firestore";
-import { Download, GraduationCap, RefreshCw, TriangleAlert } from "lucide-react";
+import { Download, GraduationCap, NotebookPen, RefreshCw, TriangleAlert } from "lucide-react";
 import { useProgress } from "@/components/ProgressProvider";
 import { getFirebase } from "@/lib/firebase";
 import { QUESTS } from "@/data/quests";
 import { levelFromExp } from "@/data/rewards";
+import { solvedLabel, STUCK_OPTIONS, stuckLabel } from "@/data/reflection";
 import { isCleared } from "@/lib/progress";
 import type { QuestProgress, StudentDoc } from "@/types/quest";
 
@@ -58,6 +59,20 @@ export default function TeacherPage() {
     [rows, cls],
   );
 
+  // ふりかえり（新しい順）
+  const reflections = useMemo(
+    () =>
+      shown
+        .flatMap((r) =>
+          QUESTS.flatMap((q) => {
+            const rf = r.progress.quests?.[q.id]?.reflection;
+            return rf ? [{ row: r, quest: q, rf }] : [];
+          }),
+        )
+        .sort((a, b) => b.rf.at.localeCompare(a.rf.at)),
+    [shown],
+  );
+
   if (mode !== "cloud" || !isTeacher) {
     return (
       <div className="panel flex items-center gap-3">
@@ -69,7 +84,8 @@ export default function TeacherPage() {
 
   const downloadCsv = () => {
     const head = ["クラス", "番号", "ニックネーム", "Googleの名前", "メール", "Lv", "EXP", "最終更新"];
-    for (const q of QUESTS) head.push(`${q.order}_状態`, `${q.order}_ヒント段階`, `${q.order}_報告回数`);
+    for (const q of QUESTS)
+      head.push(`${q.order}_状態`, `${q.order}_ヒント段階`, `${q.order}_報告回数`, `${q.order}_つまずき`, `${q.order}_のりこえ方`, `${q.order}_ひとこと`);
     const lines = [head];
     for (const r of shown) {
       const line = [
@@ -84,7 +100,15 @@ export default function TeacherPage() {
       ];
       for (const q of QUESTS) {
         const qp = r.progress.quests?.[q.id];
-        line.push(statusJa(qp), String(qp?.hintsOpened ?? ""), String(qp?.attempts ?? ""));
+        const rf = qp?.reflection;
+        line.push(
+          statusJa(qp),
+          String(qp?.hintsOpened ?? ""),
+          String(qp?.attempts ?? ""),
+          stuckLabel(rf?.stuck),
+          solvedLabel(rf?.solved),
+          rf?.note ?? "",
+        );
       }
       lines.push(line);
     }
@@ -137,6 +161,8 @@ export default function TeacherPage() {
           const stuck = qps.filter((x) => x?.status === "in_progress" && (x.attempts >= 3 || x.hintsOpened >= 3));
           const avgHint = cleared.length ? cleared.reduce((s, x) => s + (x?.hintsOpened ?? 0), 0) / cleared.length : 0;
           const byHint = [0, 1, 2, 3].map((lv) => cleared.filter((x) => (x?.hintsOpened ?? 0) === lv).length);
+          const rfs = qps.flatMap((x) => (x?.reflection ? [x.reflection] : []));
+          const byStuck = STUCK_OPTIONS.map((o) => ({ ...o, n: rfs.filter((rf) => rf.stuck === o.id).length })).filter((o) => o.n > 0);
           return (
             <div key={q.id} className="panel">
               <p className="font-pixel">
@@ -154,6 +180,18 @@ export default function TeacherPage() {
                   </span>
                 ))}
               </div>
+              {byStuck.length > 0 && (
+                <div className="mt-2 text-xs" aria-label="ふりかえりで答えた、つまずいたところの人数">
+                  <p className="text-white/60">つまずいたところ（ふりかえり {rfs.length} 人）</p>
+                  <ul className="mt-1 flex flex-wrap gap-1">
+                    {byStuck.map((o) => (
+                      <li key={o.id} className="rounded bg-stone-900 px-2 py-1">
+                        {o.label}：{o.n}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
               {stuck.length > 0 && (
                 <p className="mt-2 rounded bg-redstone-500/20 px-2 py-1 text-sm text-redstone-400">
                   声かけ候補 {stuck.length} 人（報告3回以上 or ヒント3まで開いて未クリア）
@@ -162,6 +200,37 @@ export default function TeacherPage() {
             </div>
           );
         })}
+      </section>
+
+      {/* ふりかえり */}
+      <section className="panel" aria-labelledby="reflect-list-h">
+        <h2 id="reflect-list-h" className="flex items-center gap-2 font-pixel text-lg">
+          <NotebookPen size={20} aria-hidden /> ふりかえり（新しい順）
+        </h2>
+        {reflections.length ? (
+          <ul className="mt-3 max-h-96 space-y-2 overflow-y-auto pr-1">
+            {reflections.slice(0, 100).map(({ row, quest, rf }) => (
+              <li key={`${row.uid}-${quest.id}`} className="rounded-lg bg-stone-900 px-3 py-2 text-sm">
+                <p className="flex flex-wrap items-baseline gap-x-2 text-white/60">
+                  <span className="text-white">
+                    {row.profile.className} {row.profile.studentNumber}番 {row.profile.nickname}
+                  </span>
+                  <span>
+                    Q{quest.order}. {quest.title}
+                  </span>
+                  <span className="ml-auto text-xs">{new Date(rf.at).toLocaleString("ja-JP")}</span>
+                </p>
+                <p className="mt-1">
+                  つまずき：{stuckLabel(rf.stuck)}
+                  {rf.solved && <> ／ のりこえ方：{solvedLabel(rf.solved)}</>}
+                </p>
+                {rf.note && <p className="mt-1 text-diamond-300">「{rf.note}」</p>}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="mt-2 text-sm text-white/60">まだふりかえりはありません。クリアしたときに生徒が書くと、ここに出ます。</p>
+        )}
       </section>
 
       {/* 生徒一覧 */}
