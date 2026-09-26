@@ -58,11 +58,11 @@ Minecraft Education（以下マイクラEE）の横に並べて使う、クエ�
 
 ### 確認できていないこと（最優先で確認）
 
-作業環境から Google のサーバーとエミュレーターの配布元につながらず、次の 3 つは一度も動かせていません。
+作業環境から Google のサーバーにつながらず、次の 2 と 3 はまだ動かせていません（1 は確認済み）。
 
-1. **`npm run test:rules` を一度も実行できていない**
-   - Firestore エミュレーターの jar をダウンロードできなかったため
-   - ルールの文法ミスがあり得る。最初に必ず実行すること
+1. ~~`npm run test:rules` を一度も実行できていない~~ → **2026-09-26 に実行し、16 項目すべて合格**
+   - 原因は `node --test tests/` の書き方だった（Node 22 ではフォルダを指定できない）
+   - `node --test tests/*.test.mjs` に直した。ルール本体の直しは不要だった
 2. **実際の Google ログイン → Firestore 保存の流れ**
    - ポップアップのログインが apis.google.com に届かなかった
 3. **GitHub Actions の初回の結果が未確認**
@@ -73,9 +73,7 @@ Minecraft Education（以下マイクラEE）の横に並べて使う、クエ�
 
 ### A. 動作確認と Firebase のセットアップ（野田先生と一緒に）
 
-1. `npm install` → `npm run test:rules`
-   - Java 11 以上が必要
-   - 失敗したら `firestore.rules` かテストを直す
+1. ~~`npm install` → `npm run test:rules`~~（済み。Java 11 以上が必要）
 2. Firebase プロジェクトを作る（`docs/DEPLOY.md` の手順 1〜2）
    - Google ログインを有効化、Firestore を東京で作成、`teachers` に先生を登録
 3. 学校ドメインを決めて、次の 2 か所を同じ値にそろえる
