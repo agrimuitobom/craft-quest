@@ -50,17 +50,20 @@ npm install
 npx firebase login          # ブラウザで先生のアカウントを選ぶ
 ```
 
-`.firebaserc` の `your-firebase-project-id` を手順 1 のプロジェクトIDに書き換えます。
+`.firebaserc` のプロジェクト ID が手順 1 のプロジェクトと同じか確かめます（いまは `craft-quest-ef2ef`）。
 
-## 4. 学校ドメインを設定してルールを公開
+## 4. ログインできるアカウントを決めてルールを公開
 
-1. `firestore.rules` の次の行を学校の Google Workspace ドメインに書き換える
+1. `firestore.rules` の `allowedDomains()` で、ログインできるアカウントを決める
 
    ```
-   function schoolDomain() {
-     return 'example.ed.jp';   // ← 生徒のメールの @ より後ろ
+   function allowedDomains() {
+     return [];   // 空 … Google アカウントならだれでも（個人の Gmail も可）
    }
    ```
+
+   学校のアカウントだけに絞るときは、ドメイン（メールの @ より後ろ）を並べます。例：`return ['example.ed.jp'];`
+   このときは `NEXT_PUBLIC_ALLOWED_EMAIL_DOMAIN` にも同じドメインを入れてください。
 
 2. ルールを公開
 
@@ -127,7 +130,7 @@ GitHub のリポジトリ → **Settings → Secrets and variables → Actions �
 | `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET` | storageBucket |
 | `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` | messagingSenderId |
 | `NEXT_PUBLIC_FIREBASE_APP_ID` | appId |
-| `NEXT_PUBLIC_ALLOWED_EMAIL_DOMAIN` | 学校ドメイン（firestore.rules と同じ） |
+| `NEXT_PUBLIC_ALLOWED_EMAIL_DOMAIN` | 学校ドメイン（`allowedDomains()` と同じ）。制限しないときは空のまま |
 
 > これらは Web ページに埋め込まれる公開値なので Variables で問題ありません。データの保護はセキュリティルールで行っています。
 
@@ -143,7 +146,7 @@ Actions タブ → 失敗した実行 →「Re-run all jobs」、または何か
 ## 7. 授業前チェックリスト
 
 - [ ] 生徒アカウントでログイン → クラス・番号入力 → クエストを 1 つクリアできる
-- [ ] 学校ドメイン以外（個人 Gmail）でログインすると「このアカウントは使えません」になる
+- [ ] （ドメインを絞った場合のみ）学校ドメイン以外（個人 Gmail）でログインすると「このアカウントは使えません」になる
 - [ ] 先生アカウントでログイン → ヘッダーに「先生」→ クラス一覧に上の生徒が出る
 - [ ] 学校の Google Workspace 管理コンソールで、外部アプリ（Firebase / `*.firebaseapp.com`）へのログインがブロックされていない
   - ブロックされている場合は、Workspace 管理者に「API の制御 → アプリのアクセス制御」で許可を依頼

@@ -36,7 +36,7 @@ function LoginCard() {
     <div className="panel flex flex-col items-center gap-4 text-center">
       <AgentAvatar size={80} bob />
       <p className="leading-relaxed">
-        学校の Google アカウントでログインしてね。
+        {ALLOWED_DOMAIN ? "学校の " : ""}Google アカウントでログインしてね。
         <br />
         クエストの進みぐあいが保存されて、どのパソコンからでもつづきができるよ。
       </p>

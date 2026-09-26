@@ -1,7 +1,7 @@
 # クラフトクエスト
 
 Minecraft: Education Edition の横に並べて使う、クエスト型プログラミング学習コンパニオンアプリです。
-生徒は学校の Google アカウントでログインし、進捗は Firebase（Firestore）に保存されます。
+生徒は Google アカウントでログインし、進捗は Firebase（Firestore）に保存されます。
 
 - 設計仕様：[`docs/SPEC.md`](docs/SPEC.md)
 - **公開手順（GitHub ＋ Firebase）：[`docs/DEPLOY.md`](docs/DEPLOY.md)**
@@ -51,7 +51,7 @@ src/
   lib/firebase.ts        Firebase 初期化
   lib/progress.ts        進捗の状態遷移（純粋関数）
   lib/validator.ts       コードの静的チェック
-firestore.rules          セキュリティルール（★学校ドメインを書き換える）
+firestore.rules          セキュリティルール（★allowedDomains() でログインできるドメインを決める）
 tests/                   ルールのテスト
 .github/workflows/       GitHub Actions（テスト → ビルド → Firebase Hosting）
 ```

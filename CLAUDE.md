@@ -9,7 +9,7 @@ Minecraft Education と並べて使うクエスト型プログラミング学習
 
 - Next.js 15（App Router）+ TypeScript + Tailwind CSS 3 + lucide-react
 - `output: "export"` の静的書き出し → Firebase Hosting（`out/`）
-- Firebase Authentication（Google、学校ドメインのみ）+ Firestore（asia-northeast1）
+- Firebase Authentication（Google。ドメイン制限は `allowedDomains()` で切り替え、いまは制限なし）+ Firestore（asia-northeast1）
 - `.env.local` がなければ「ローカルモード」（LocalStorage 保存・ログインなし）で動く
 
 ## コマンド

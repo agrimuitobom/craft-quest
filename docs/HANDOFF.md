@@ -21,8 +21,9 @@ Minecraft Education（以下マイクラEE）の横に並べて使う、クエ�
 
 | 項目 | 決定 | 理由・補足 |
 |---|---|---|
-| ログイン | **Google アカウント（学校 Workspace ドメインのみ）** | 野田先生の指定。ドメインは画面の表示と `firestore.rules` の両方で制限する |
+| ログイン | **Google アカウント（ドメイン制限なし）** | 当初は学校ドメインのみだったが、個人の Google アカウントも使えるよう変更。絞るときは `allowedDomains()` と環境変数の 2 か所 |
 | コード管理 | **GitHub**（`agrimuitobom/craft-quest`） | 野田先生の指定 |
+| Firebase プロジェクト | **`craft-quest-ef2ef`**（新規作成） | 既存プロジェクトとの相乗りは、ルールや Hosting の上書きの危険があるのでやめた |
 | ホスティング | **Firebase Hosting** | GitHub Pages ではなく、Firebase にまとめる方針 |
 | バックエンド | **Firestore（asia-northeast1 / 東京）** | 無料の Spark プランで収まる想定 |
 | 公開の流れ | main に push → GitHub Actions（ルールのテスト → ビルド → Hosting へ公開） | Pull Request ではプレビュー用の URL を発行する |
@@ -76,11 +77,10 @@ Minecraft Education（以下マイクラEE）の横に並べて使う、クエ�
 1. ~~`npm install` → `npm run test:rules`~~（済み。Java 11 以上が必要）
 2. Firebase プロジェクトを作る（`docs/DEPLOY.md` の手順 1〜2）
    - Google ログインを有効化、Firestore を東京で作成、`teachers` に先生を登録
-3. 学校ドメインを決めて、次の 2 か所を同じ値にそろえる
-   - `firestore.rules` の `schoolDomain()`（いまは `'example.ed.jp'`）
-   - `.env.local` の `NEXT_PUBLIC_ALLOWED_EMAIL_DOMAIN`
-   - ※ 実際のドメインはまだ聞いていない。**推測せず、野田先生に確認すること**
-4. `.firebaserc` の `your-firebase-project-id` を書き換える → `npm run deploy:rules`
+3. ~~学校ドメインを決める~~ → **2026-09-26 に方針変更：Google アカウントならだれでもログインできる**（野田先生の希望）
+   - `firestore.rules` の `allowedDomains()` を空のリストにし、`NEXT_PUBLIC_ALLOWED_EMAIL_DOMAIN` も空にした
+   - あとで学校ドメインに絞るときは、この 2 か所に同じドメインを入れる
+4. ~~`.firebaserc` を書き換える~~（`craft-quest-ef2ef` に設定済み）→ `npm run deploy:rules`
 5. `.env.local` を作って `npm run dev` → 実際のアカウントでログイン・保存・先生画面を確認する
 6. `npx firebase init hosting:github` → Secret の `FIREBASE_SERVICE_ACCOUNT` と Variables 7 つを登録 → Actions を緑にする
    - `firebase init` がワークフローファイルを追加で作ったら削除する（同梱の `deploy.yml` だけを使う）
@@ -90,6 +90,7 @@ Minecraft Education（以下マイクラEE）の横に並べて使う、クエ�
 ### B. 気になっている点（直す候補）
 
 - **Secret 名の手間：** `init hosting:github` が作る Secret は `FIREBASE_SERVICE_ACCOUNT_<ID>` という名前で、同梱のワークフローが使う名前と違う。いまは手で登録し直す手順にしている。ワークフロー側を合わせた方が楽かもしれない。
+- **だれでもログインできる：** ドメイン制限をなくしたので、URL を知っていれば校外の人もログインしてデータを作れる（自分の分だけ）。先生画面の生徒一覧にも出てくる。困るようなら `allowedDomains()` で絞るか、先生画面をクラスで絞り込む。
 - **EXP の改ざん：** EXP の計算がブラウザ側なので、生徒が値を改ざんできる（ルールで型と範囲だけ制限している）。成績に使うなら Cloud Functions に移す必要があるが、そうすると Blaze プラン（従量課金）が必要になる。
 - **先生の閲覧範囲：** 先生は全クラスを閲覧できる。担当クラスだけに絞るなら `teachers/{email}.classes` を追加する。
 - **アプリ内のコードとマイクラの実際の API 名：** マイクラ用コードの API 名（`agent.detect`, `AgentInspection.BLOCK`, `LEFT_TURN`, `blocks.fill` など）は、実機の Code Builder で確認していない。
