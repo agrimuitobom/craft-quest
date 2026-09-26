@@ -112,7 +112,7 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
           setAuthState("needs-profile");
         }
       } catch (e) {
-        // 権限エラー＝ルール上このアカウントは使えない／それ以外＝通信エラー
+        // 権限エラー＝ルール上このアカウントは使えない（ルール未公開のときもここに来る）／それ以外＝通信エラー
         console.error(e);
         const code = (e as { code?: string }).code;
         setAuthState(code === "permission-denied" ? "wrong-domain" : "error");

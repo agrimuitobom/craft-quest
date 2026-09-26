@@ -7,16 +7,18 @@ rules_version = '2';
 //  users/{uid}/events/{id}    … 学習ログ（本人は追記のみ／先生は閲覧のみ）
 //  teachers/{email}           … 先生の名簿（Firebase コンソールで手動登録）
 //
-// ★ schoolDomain() を学校の Google Workspace ドメインに書き換えてから
-//   `firebase deploy --only firestore:rules` でデプロイしてください。
+// ★ ログインできるアカウントは allowedDomains() で決まります。
+//   空のリスト … Google アカウントならだれでも（個人の Gmail も可）
+//   ドメインを並べる … そのドメインのアカウントだけ（例: ['saijo-ah.ed.jp']）
+//   変えたら `npm run deploy:rules` でデプロイしてください。
 // ============================================================
 
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // ★ここを書き換える（例: 'saijo-ah.ed.jp'）
-    function schoolDomain() {
-      return 'example.ed.jp';
+    // ★ログインを許すメールのドメイン。空なら Google アカウントすべてを許す
+    function allowedDomains() {
+      return [];
     }
 
     function signedIn() {
@@ -29,10 +31,11 @@ service cloud.firestore {
       return request.auth.token.email.lower();
     }
 
-    function isSchoolGoogleUser() {
+    function isAllowedGoogleUser() {
       return signedIn()
         && request.auth.token.firebase.sign_in_provider == 'google.com'
-        && myEmail().split('@')[1] == schoolDomain();
+        && (allowedDomains().size() == 0
+            || myEmail().split('@')[1] in allowedDomains());
     }
 
     function isTeacher() {
@@ -75,12 +78,12 @@ service cloud.firestore {
       allow read: if isOwner(uid) || isTeacher();
 
       allow create: if isOwner(uid)
-        && (isSchoolGoogleUser() || isTeacher())
+        && (isAllowedGoogleUser() || isTeacher())
         && validUserDoc(request.resource.data)
         && request.resource.data.createdAt == request.time;
 
       allow update: if isOwner(uid)
-        && (isSchoolGoogleUser() || isTeacher())
+        && (isAllowedGoogleUser() || isTeacher())
         && validUserDoc(request.resource.data)
         && request.resource.data.createdAt == resource.data.createdAt;
 
@@ -91,7 +94,7 @@ service cloud.firestore {
       match /events/{eventId} {
         allow read: if isOwner(uid) || isTeacher();
         allow create: if isOwner(uid)
-          && (isSchoolGoogleUser() || isTeacher())
+          && (isAllowedGoogleUser() || isTeacher())
           && request.resource.data.keys().hasOnly(['type', 'questId', 'hintLevel', 'attempt', 'exp', 'at'])
           && request.resource.data.type in ['start', 'hint', 'fail', 'clear']
           && request.resource.data.questId is string

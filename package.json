@@ -7,9 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test:rules": "firebase emulators:exec --only firestore --project demo-craft-quest \"node --test tests/\"",
+    "test:rules": "firebase emulators:exec --only firestore --project demo-craft-quest \"node --test tests/*.test.mjs\"",
     "emulators": "firebase emulators:start --only auth,firestore --project demo-craft-quest",
-    "deploy:rules": "firebase deploy --only firestore:rules"
+    "deploy:rules": "firebase deploy --only firestore:rules --project craft-quest-ef2ef"
   },
   "dependencies": {
     "firebase": "^12.19.0",

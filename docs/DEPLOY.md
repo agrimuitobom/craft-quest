@@ -50,17 +50,20 @@ npm install
 npx firebase login          # ブラウザで先生のアカウントを選ぶ
 ```
 
-`.firebaserc` の `your-firebase-project-id` を手順 1 のプロジェクトIDに書き換えます。
+`.firebaserc` のプロジェクト ID が手順 1 のプロジェクトと同じか確かめます（いまは `craft-quest-ef2ef`）。
 
-## 4. 学校ドメインを設定してルールを公開
+## 4. ログインできるアカウントを決めてルールを公開
 
-1. `firestore.rules` の次の行を学校の Google Workspace ドメインに書き換える
+1. `firestore.rules` の `allowedDomains()` で、ログインできるアカウントを決める
 
    ```
-   function schoolDomain() {
-     return 'example.ed.jp';   // ← 生徒のメールの @ より後ろ
+   function allowedDomains() {
+     return [];   // 空 … Google アカウントならだれでも（個人の Gmail も可）
    }
    ```
+
+   学校のアカウントだけに絞るときは、ドメイン（メールの @ より後ろ）を並べます。例：`return ['example.ed.jp'];`
+   このときは `NEXT_PUBLIC_ALLOWED_EMAIL_DOMAIN` にも同じドメインを入れてください。
 
 2. ルールを公開
 
@@ -68,17 +71,20 @@ npx firebase login          # ブラウザで先生のアカウントを選ぶ
    npm run deploy:rules
    ```
 
+> `deploy:rules` は公開先を `craft-quest-ef2ef` に固定しています。`npx firebase deploy` を直接打つと、`firebase use` で選んだ別のプロジェクトに公開されることがあるので使わないでください。
+
 > ルールはコードの自動公開（手順 6）には含まれません。`firestore.rules` を変えたときは、このコマンドを手動で実行してください。
 
 ## 5. 手元で動作確認（任意）
 
 ```bash
-cp .env.example .env.local   # 手順 1-4 の 6 つの値とドメインを記入
-npm run dev                  # http://localhost:3000
+npm run dev   # http://localhost:3000
 ```
 
 - `http://localhost` は Firebase Authentication の「承認済みドメイン」に最初から入っているので、そのままログインできます
-- `.env.local` がないと「ローカルモード」（ログインなし・ブラウザ保存）で起動します
+- ログイン後に「このアカウントは使えません」と出るときは、ルールが未公開（初期ルールのまま）のことが多いです。手順 4 の `npm run deploy:rules` を確認してください
+- Firebase の設定値はリポジトリの `.env` に入っているので、ファイルを作る必要はありません（別のプロジェクトを使うときは `.env` を書き換える）
+- ログインなしの「ローカルモード」で動かすときは、`.env.local` に `NEXT_PUBLIC_FIREBASE_API_KEY=` の 1 行を書きます
 
 ## 6. GitHub に置いて自動公開を設定
 
@@ -93,7 +99,7 @@ git remote add origin https://github.com/<ユーザー名>/craft-quest.git
 git push -u origin main
 ```
 
-この時点では、まだ設定が足りないため Actions は失敗します（次の 6-2, 6-3 で直ります）。
+この時点では、まだ設定が足りないため Actions は失敗します（次の 6-2 で直ります）。
 
 ### 6-2. デプロイ用の鍵を GitHub に登録（コマンド 1 つ）
 
@@ -109,27 +115,19 @@ npx firebase init hosting:github
 | Set up the workflow to run a build script before every deploy? | **No**（ワークフローは同梱済み） |
 | Set up automatic deployment to your site's live channel when a PR is merged? | **No** |
 
-これで GitHub の Secrets に `FIREBASE_SERVICE_ACCOUNT_<プロジェクトID>` という名前の鍵が登録されます。
-GitHub のリポジトリ → **Settings → Secrets and variables → Actions → Secrets** で、この値を **`FIREBASE_SERVICE_ACCOUNT`** という名前でもう 1 つ登録し直してください（同梱のワークフローはこの名前を使います）。
-※ 上書きが面倒な場合は `.github/workflows/deploy.yml` の `secrets.FIREBASE_SERVICE_ACCOUNT` を、作成された名前に書き換えても OK です。
+これで GitHub の Secrets に `FIREBASE_SERVICE_ACCOUNT_CRAFT_QUEST_EF2EF` という名前の鍵が登録されます。同梱のワークフローはこの名前を使うので、登録し直す必要はありません。
+※ 別のプロジェクトに公開するときは、`deploy.yml` の `secrets.FIREBASE_SERVICE_ACCOUNT_…` をそのプロジェクトの名前に書き換えます。
+※ craft-quest を作った Google アカウントで Firebase CLI にログインした状態で実行してください（`npx firebase login:use …`）。
 
 > `firebase init` が `.github/workflows/` に別のファイルを作った場合は削除してください（同梱の `deploy.yml` だけを使います）。
 
-### 6-3. Firebase の設定値を登録
+### 6-3. Firebase の設定値（登録は不要）
 
-リポジトリ → **Settings → Secrets and variables → Actions → Variables** タブ →「New repository variable」で 7 つ登録：
+Firebase の設定値はリポジトリの `.env` に入っていて、ビルドのときにそのまま使われます。GitHub の Variables に登録する必要はありません。
+これらは Web ページに埋め込まれる公開値なので、リポジトリに入れて問題ありません。データの保護はセキュリティルールで行っています。
 
-| Name | 値 |
-|---|---|
-| `NEXT_PUBLIC_FIREBASE_API_KEY` | apiKey |
-| `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` | authDomain |
-| `NEXT_PUBLIC_FIREBASE_PROJECT_ID` | projectId |
-| `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET` | storageBucket |
-| `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` | messagingSenderId |
-| `NEXT_PUBLIC_FIREBASE_APP_ID` | appId |
-| `NEXT_PUBLIC_ALLOWED_EMAIL_DOMAIN` | 学校ドメイン（firestore.rules と同じ） |
-
-> これらは Web ページに埋め込まれる公開値なので Variables で問題ありません。データの保護はセキュリティルールで行っています。
+> `deploy.yml` に `NEXT_PUBLIC_*` の `env` を書かないでください。空の値でも `.env` より優先され、ログインできないページが公開されてしまいます。
+> 別のプロジェクトに公開するときは、`.env`・`.firebaserc`・`deploy.yml` の `projectId` の 3 か所を書き換えます。
 
 ### 6-4. 公開
 
@@ -143,7 +141,7 @@ Actions タブ → 失敗した実行 →「Re-run all jobs」、または何か
 ## 7. 授業前チェックリスト
 
 - [ ] 生徒アカウントでログイン → クラス・番号入力 → クエストを 1 つクリアできる
-- [ ] 学校ドメイン以外（個人 Gmail）でログインすると「このアカウントは使えません」になる
+- [ ] （ドメインを絞った場合のみ）学校ドメイン以外（個人 Gmail）でログインすると「このアカウントは使えません」になる
 - [ ] 先生アカウントでログイン → ヘッダーに「先生」→ クラス一覧に上の生徒が出る
 - [ ] 学校の Google Workspace 管理コンソールで、外部アプリ（Firebase / `*.firebaseapp.com`）へのログインがブロックされていない
   - ブロックされている場合は、Workspace 管理者に「API の制御 → アプリのアクセス制御」で許可を依頼

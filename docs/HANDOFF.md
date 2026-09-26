@@ -21,15 +21,17 @@ Minecraft Education（以下マイクラEE）の横に並べて使う、クエ�
 
 | 項目 | 決定 | 理由・補足 |
 |---|---|---|
-| ログイン | **Google アカウント（学校 Workspace ドメインのみ）** | 野田先生の指定。ドメインは画面の表示と `firestore.rules` の両方で制限する |
+| ログイン | **Google アカウント（ドメイン制限なし）** | 当初は学校ドメインのみだったが、個人の Google アカウントも使えるよう変更。絞るときは `allowedDomains()` と環境変数の 2 か所 |
 | コード管理 | **GitHub**（`agrimuitobom/craft-quest`） | 野田先生の指定 |
+| Firebase プロジェクト | **`craft-quest-ef2ef`**（新規作成。`agrimuitobom@gmail.com` はプロジェクト数の上限のため、**別の Google アカウントで作成**） | 既存プロジェクトとの相乗りは、ルールや Hosting の上書きの危険があるのでやめた |
 | ホスティング | **Firebase Hosting** | GitHub Pages ではなく、Firebase にまとめる方針 |
 | バックエンド | **Firestore（asia-northeast1 / 東京）** | 無料の Spark プランで収まる想定 |
 | 公開の流れ | main に push → GitHub Actions（ルールのテスト → ビルド → Hosting へ公開） | Pull Request ではプレビュー用の URL を発行する |
 | Next.js | `output: "export"` の静的書き出し | Hosting に置くため。`/quest/[id]` は `generateStaticParams` で事前に生成する |
 | 先生の判定 | Firestore の `teachers/{メールアドレス}` が存在するか | コンソールで手動登録する。先生は閲覧のみで、書き換えはできない |
 | 旧・先生モード（PIN） | **廃止** | 先生アカウントでの判定に置き換えた |
-| ローカルモード | `.env.local` がないときは LocalStorage 保存・ログインなしで動く | 開発とデモ用。このモードでは模範解答が常に表示される |
+| 設定値 | Firebase の設定値はリポジトリの `.env` に入れる | 公開値なので問題ない。先生の PC で `.env.local` を作る手間と、GitHub の Variables 登録をなくすため |
+| ローカルモード | `.env.local` に `NEXT_PUBLIC_FIREBASE_API_KEY=` と書くと LocalStorage 保存・ログインなしで動く | 開発とデモ用。このモードでは模範解答が常に表示される |
 
 ## 3. いまの実装状況
 
@@ -58,40 +60,42 @@ Minecraft Education（以下マイクラEE）の横に並べて使う、クエ�
 
 ### 確認できていないこと（最優先で確認）
 
-作業環境から Google のサーバーとエミュレーターの配布元につながらず、次の 3 つは一度も動かせていません。
+1 と 2 は確認済み。3 が残っています。
 
-1. **`npm run test:rules` を一度も実行できていない**
-   - Firestore エミュレーターの jar をダウンロードできなかったため
-   - ルールの文法ミスがあり得る。最初に必ず実行すること
-2. **実際の Google ログイン → Firestore 保存の流れ**
+1. ~~`npm run test:rules` を一度も実行できていない~~ → **2026-09-26 に実行し、16 項目すべて合格**
+   - 原因は `node --test tests/` の書き方だった（Node 22 ではフォルダを指定できない）
+   - `node --test tests/*.test.mjs` に直した。ルール本体の直しは不要だった
+2. ~~実際の Google ログイン → Firestore 保存の流れ~~ → **2026-09-26 に先生の PC で確認。個人の Gmail でログインし、プロフィール登録まで成功**
    - ポップアップのログインが apis.google.com に届かなかった
+   - 2026-09-26：本番の設定値でビルドが通ること、Firestore が作成済みで未ログインの読み取りが拒否されることは確認した
+   - クラウドの作業環境からは `*.firebaseapp.com` への接続が遮断されるため、ログインは先生の PC で確認する
 3. **GitHub Actions の初回の結果が未確認**
    - push は済んでいる
-   - Variables と Secrets がまだ未登録なので、公開ジョブは失敗しているはず（想定どおり）
+   - Secret がまだ未登録なので、公開ジョブは失敗しているはず（想定どおり）
+   - main への push で本番公開される。いまの作業は `claude/eager-franklin-g9tg3b` ブランチにある
 
 ## 4. 次にやること（優先順）
 
 ### A. 動作確認と Firebase のセットアップ（野田先生と一緒に）
 
-1. `npm install` → `npm run test:rules`
-   - Java 11 以上が必要
-   - 失敗したら `firestore.rules` かテストを直す
+1. ~~`npm install` → `npm run test:rules`~~（済み。Java 11 以上が必要）
 2. Firebase プロジェクトを作る（`docs/DEPLOY.md` の手順 1〜2）
    - Google ログインを有効化、Firestore を東京で作成、`teachers` に先生を登録
-3. 学校ドメインを決めて、次の 2 か所を同じ値にそろえる
-   - `firestore.rules` の `schoolDomain()`（いまは `'example.ed.jp'`）
-   - `.env.local` の `NEXT_PUBLIC_ALLOWED_EMAIL_DOMAIN`
-   - ※ 実際のドメインはまだ聞いていない。**推測せず、野田先生に確認すること**
-4. `.firebaserc` の `your-firebase-project-id` を書き換える → `npm run deploy:rules`
-5. `.env.local` を作って `npm run dev` → 実際のアカウントでログイン・保存・先生画面を確認する
-6. `npx firebase init hosting:github` → Secret の `FIREBASE_SERVICE_ACCOUNT` と Variables 7 つを登録 → Actions を緑にする
+3. ~~学校ドメインを決める~~ → **2026-09-26 に方針変更：Google アカウントならだれでもログインできる**（野田先生の希望）
+   - `firestore.rules` の `allowedDomains()` を空のリストにし、`NEXT_PUBLIC_ALLOWED_EMAIL_DOMAIN` も空にした
+   - あとで学校ドメインに絞るときは、この 2 か所に同じドメインを入れる
+4. ~~`.firebaserc` を書き換える~~（`craft-quest-ef2ef` に設定済み）→ `npm run deploy:rules`
+5. `npm run dev`（設定値は `.env` に入っている） → 実際のアカウントでログイン・保存・先生画面を確認する
+6. `npx firebase init hosting:github`（Secret `FIREBASE_SERVICE_ACCOUNT_CRAFT_QUEST_EF2EF` が自動登録される。Variables は不要） → Actions を緑にする
    - `firebase init` がワークフローファイルを追加で作ったら削除する（同梱の `deploy.yml` だけを使う）
 7. `DEPLOY.md` の「授業前チェックリスト」を実施する
    - 特に、Workspace 側で外部アプリへのログインがブロックされていないか
 
 ### B. 気になっている点（直す候補）
 
-- **Secret 名の手間：** `init hosting:github` が作る Secret は `FIREBASE_SERVICE_ACCOUNT_<ID>` という名前で、同梱のワークフローが使う名前と違う。いまは手で登録し直す手順にしている。ワークフロー側を合わせた方が楽かもしれない。
+- **だれでもログインできる：** ドメイン制限をなくしたので、URL を知っていれば校外の人もログインしてデータを作れる（自分の分だけ）。先生画面の生徒一覧にも出てくる。困るようなら `allowedDomains()` で絞るか、先生画面をクラスで絞り込む。
+- **Firebase CLI のアカウント：** 先生の Mac の CLI は `agrimuitobom@gmail.com`（farm-dashboard 側）でログインしている。craft-quest を操作するときは `firebase login:use` で作成したアカウントに切り替える。
+- **2026-09-26 の事故：** `npm run deploy:rules` が、先生の PC で `firebase use` に選ばれていた `farm-dashboard-95875` に公開され、そちらのルールを上書きした。コンソールのルール履歴から戻してもらう。再発防止に `deploy:rules` へ `--project craft-quest-ef2ef` を付けた。
 - **EXP の改ざん：** EXP の計算がブラウザ側なので、生徒が値を改ざんできる（ルールで型と範囲だけ制限している）。成績に使うなら Cloud Functions に移す必要があるが、そうすると Blaze プラン（従量課金）が必要になる。
 - **先生の閲覧範囲：** 先生は全クラスを閲覧できる。担当クラスだけに絞るなら `teachers/{email}.classes` を追加する。
 - **アプリ内のコードとマイクラの実際の API 名：** マイクラ用コードの API 名（`agent.detect`, `AgentInspection.BLOCK`, `LEFT_TURN`, `blocks.fill` など）は、実機の Code Builder で確認していない。

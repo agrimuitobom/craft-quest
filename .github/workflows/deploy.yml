@@ -12,14 +12,8 @@ permissions:
   checks: write
   pull-requests: write
 
-env:
-  NEXT_PUBLIC_FIREBASE_API_KEY: ${{ vars.NEXT_PUBLIC_FIREBASE_API_KEY }}
-  NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ${{ vars.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}
-  NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${{ vars.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}
-  NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ${{ vars.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET }}
-  NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${{ vars.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
-  NEXT_PUBLIC_FIREBASE_APP_ID: ${{ vars.NEXT_PUBLIC_FIREBASE_APP_ID }}
-  NEXT_PUBLIC_ALLOWED_EMAIL_DOMAIN: ${{ vars.NEXT_PUBLIC_ALLOWED_EMAIL_DOMAIN }}
+# Firebase の設定値はリポジトリの .env から読む（公開値）。
+# ここで env を設定すると .env より優先されるので、書かないこと。
 
 jobs:
   test-rules:
@@ -54,6 +48,7 @@ jobs:
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-          projectId: ${{ vars.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}
+          # `npx firebase init hosting:github` が登録する名前（プロジェクト ID を大文字・_ にしたもの）
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_CRAFT_QUEST_EF2EF }}
+          projectId: craft-quest-ef2ef
           channelId: ${{ github.event_name == 'push' && 'live' || '' }}

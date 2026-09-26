@@ -1,7 +1,7 @@
 # クラフトクエスト
 
 Minecraft: Education Edition の横に並べて使う、クエスト型プログラミング学習コンパニオンアプリです。
-生徒は学校の Google アカウントでログインし、進捗は Firebase（Firestore）に保存されます。
+生徒は Google アカウントでログインし、進捗は Firebase（Firestore）に保存されます。
 
 - 設計仕様：[`docs/SPEC.md`](docs/SPEC.md)
 - **公開手順（GitHub ＋ Firebase）：[`docs/DEPLOY.md`](docs/DEPLOY.md)**
@@ -14,11 +14,11 @@ npm install
 npm run dev     # → http://localhost:3000
 ```
 
-`.env.local` がない状態では **ローカルモード**（ログインなし・進捗はブラウザに保存・模範解答は常に表示）で動きます。
+`.env` の Firebase の設定値を空にすると **ローカルモード**（ログインなし・進捗はブラウザに保存・模範解答は常に表示）で動きます。
 
 ## Firebase につなぐ
 
-`.env.example` を `.env.local` にコピーして値を入れると、Google ログイン＋Firestore 保存に切り替わります。詳しくは [DEPLOY.md](docs/DEPLOY.md)。
+リポジトリの `.env` に Firebase の設定値が入っているので、`npm run dev` だけで Google ログイン＋Firestore 保存で動きます。ローカルモードにするときは、`.env.local` に `NEXT_PUBLIC_FIREBASE_API_KEY=` の 1 行を書きます。詳しくは [DEPLOY.md](docs/DEPLOY.md)。
 
 ## コマンド
 
@@ -51,7 +51,7 @@ src/
   lib/firebase.ts        Firebase 初期化
   lib/progress.ts        進捗の状態遷移（純粋関数）
   lib/validator.ts       コードの静的チェック
-firestore.rules          セキュリティルール（★学校ドメインを書き換える）
+firestore.rules          セキュリティルール（★allowedDomains() でログインできるドメインを決める）
 tests/                   ルールのテスト
 .github/workflows/       GitHub Actions（テスト → ビルド → Firebase Hosting）
 ```

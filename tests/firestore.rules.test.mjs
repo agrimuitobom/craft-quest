@@ -6,12 +6,19 @@ import { assertFails, assertSucceeds, initializeTestEnvironment } from "@firebas
 import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
 
 const rules = readFileSync(new URL("../firestore.rules", import.meta.url), "utf8");
-const DOMAIN = rules.match(/function schoolDomain\(\)\s*\{\s*return '([^']+)'/)[1];
+const DOMAIN = "example.ed.jp";
+// ドメインを制限したときの動きも確かめるため、allowedDomains() だけ差し替えたルールを用意する
+const DOMAIN_RE = /function allowedDomains\(\)\s*\{\s*return \[[^\]]*\];/;
+if (!DOMAIN_RE.test(rules)) throw new Error("firestore.rules に allowedDomains() が見つかりません");
+const restrictedRules = rules.replace(DOMAIN_RE, `function allowedDomains() { return ['${DOMAIN}'];`);
 
 let env;
+let restrictedEnv;
 const token = (email) => ({ email, email_verified: true, firebase: { sign_in_provider: "google.com" } });
 const student = (uid, local = uid) => env.authenticatedContext(uid, token(`${local}@${DOMAIN}`)).firestore();
-const outsider = () => env.authenticatedContext("eve", token("eve@gmail.com")).firestore();
+const gmailUser = (e = env) => e.authenticatedContext("eve", token("eve@gmail.com")).firestore();
+const passwordUser = () =>
+  env.authenticatedContext("mallory", { email: "mallory@gmail.com", email_verified: true, firebase: { sign_in_provider: "password" } }).firestore();
 const teacher = () => env.authenticatedContext("t1", token(`sensei@${DOMAIN}`)).firestore();
 
 const progress = (exp = 0) => ({ version: 1, playerName: "たろう", exp, quests: {}, badges: [], titles: ["novice"], skins: ["classic"], equippedTitle: "novice", equippedSkin: "classic", streak: { count: 1, lastDate: "2026-09-26" } });
@@ -27,6 +34,7 @@ const userDoc = (uid, extra = {}) => ({
 
 before(async () => {
   env = await initializeTestEnvironment({ projectId: "craft-quest-test", firestore: { rules } });
+  restrictedEnv = await initializeTestEnvironment({ projectId: "craft-quest-test-restricted", firestore: { rules: restrictedRules } });
 });
 beforeEach(async () => {
   await env.clearFirestore();
@@ -35,7 +43,10 @@ beforeEach(async () => {
     await setDoc(doc(ctx.firestore(), "users", "hanako"), { ...userDoc("hanako"), createdAt: new Date(), updatedAt: new Date() });
   });
 });
-after(async () => env?.cleanup());
+after(async () => {
+  await env?.cleanup();
+  await restrictedEnv?.cleanup();
+});
 
 test("生徒は自分の進捗を作成できる", async () => {
   await assertSucceeds(setDoc(doc(student("taro"), "users", "taro"), userDoc("taro")));
@@ -43,8 +54,17 @@ test("生徒は自分の進捗を作成できる", async () => {
 test("他人の uid では作成できない", async () => {
   await assertFails(setDoc(doc(student("taro"), "users", "jiro"), userDoc("taro")));
 });
-test("学校ドメイン以外の Google アカウントは作成できない", async () => {
-  await assertFails(setDoc(doc(outsider(), "users", "eve"), { ...userDoc("eve"), email: "eve@gmail.com" }));
+test("ドメイン制限なしなら、個人の Google アカウントでも作成できる", async () => {
+  await assertSucceeds(setDoc(doc(gmailUser(), "users", "eve"), { ...userDoc("eve"), email: "eve@gmail.com" }));
+});
+test("Google 以外のログイン方法では作成できない", async () => {
+  await assertFails(setDoc(doc(passwordUser(), "users", "mallory"), { ...userDoc("mallory"), email: "mallory@gmail.com" }));
+});
+test("ドメインを制限すると、ほかのドメインの Google アカウントは作成できない", async () => {
+  await restrictedEnv.clearFirestore();
+  await assertFails(setDoc(doc(gmailUser(restrictedEnv), "users", "eve"), { ...userDoc("eve"), email: "eve@gmail.com" }));
+  const taro = restrictedEnv.authenticatedContext("taro", token(`taro@${DOMAIN}`)).firestore();
+  await assertSucceeds(setDoc(doc(taro, "users", "taro"), userDoc("taro")));
 });
 test("未ログインは読めない", async () => {
   await assertFails(getDoc(doc(env.unauthenticatedContext().firestore(), "users", "hanako")));

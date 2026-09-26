@@ -319,7 +319,7 @@ player.on_chat("escape", on_on_chat)
 | 項目 | 内容 |
 |---|---|
 | ホスティング | Firebase Hosting（`next build` の静的書き出し `out/`）。GitHub Actions で main への push ごとに自動公開 |
-| ログイン | Firebase Authentication（Google）。学校 Workspace ドメインのみ許可（画面側チェック＋セキュリティルールで強制） |
+| ログイン | Firebase Authentication（Google）。いまは Google アカウントならだれでも可。`firestore.rules` の `allowedDomains()` と `NEXT_PUBLIC_ALLOWED_EMAIL_DOMAIN` でドメインを絞れる（画面側チェック＋セキュリティルールで強制） |
 | 初回登録 | クラス・出席番号・ニックネーム。端末に残っていたローカル進捗は引き継ぎ |
 | 保存 | Firestore `users/{uid}`（進捗）＋ `users/{uid}/events`（学習ログ：受注・ヒント・失敗・クリア）。オフラインキャッシュ有効で、Wi-Fi が切れても再接続時に送信 |
 | 先生 | Firestore `teachers/{email}` に登録された人。全生徒の閲覧・模範解答表示・`/teacher` 画面（クエスト別クリア数、ヒント段階の分布、声かけ候補、CSV） |
