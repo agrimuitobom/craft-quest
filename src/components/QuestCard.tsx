@@ -17,6 +17,8 @@ const CONCEPT_JA: Record<string, string> = {
   function: "関数",
   event: "イベント",
   algorithm: "アルゴリズム",
+  random: "乱数",
+  list: "リスト",
 };
 
 export function QuestCard({ quest }: { quest: Quest }) {

@@ -235,7 +235,7 @@ export default function TeacherPage() {
 
       {/* 生徒一覧 */}
       <section className="panel overflow-x-auto p-0">
-        <table className="w-full min-w-[760px] text-sm">
+        <table className="w-full min-w-[1100px] text-sm">
           <thead className="bg-stone-900 text-left text-white/70">
             <tr>
               <th className="px-3 py-2">クラス</th>
