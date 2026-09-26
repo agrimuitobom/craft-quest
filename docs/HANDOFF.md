@@ -66,6 +66,8 @@ Minecraft Education（以下マイクラEE）の横に並べて使う、クエ�
    - `node --test tests/*.test.mjs` に直した。ルール本体の直しは不要だった
 2. **実際の Google ログイン → Firestore 保存の流れ**
    - ポップアップのログインが apis.google.com に届かなかった
+   - 2026-09-26：本番の設定値でビルドが通ること、Firestore が作成済みで未ログインの読み取りが拒否されることは確認した
+   - クラウドの作業環境からは `*.firebaseapp.com` への接続が遮断されるため、ログインは先生の PC で確認する
 3. **GitHub Actions の初回の結果が未確認**
    - push は済んでいる
    - Variables と Secrets がまだ未登録なので、公開ジョブは失敗しているはず（想定どおり）
