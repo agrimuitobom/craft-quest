@@ -31,6 +31,7 @@ jobs:
           java-version: 21
       - run: npm ci
       - run: npm run test:rules
+      - run: npm run test:quests
 
   build-deploy:
     name: ビルドして公開

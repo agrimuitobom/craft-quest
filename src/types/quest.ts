@@ -174,7 +174,7 @@ export interface Badge {
   id: string;
   name: string;
   description: string;
-  icon: "Footprints" | "Repeat" | "Pyramid" | "Route" | "Sparkles" | "Flame" | "Brain" | "Crown";
+  icon: "Footprints" | "Repeat" | "Construction" | "Pyramid" | "Wheat" | "Route" | "Castle" | "Sparkles" | "Flame" | "Brain" | "Crown";
   color: string;
 }
 

@@ -19,8 +19,8 @@ const NODE_STYLE: Record<QuestStatus, string> = {
 
 // 道のつながり（id の順につなぐ）
 const PATHS: string[][] = [
-  ["q01-fence", "t-bridge", "q02-pyramid", "q03-maze", "t-castle"],
-  ["q02-pyramid", "t-farm"],
+  ["q01-fence", "q04-bridge", "q02-pyramid", "q03-maze", "q06-castle"],
+  ["q02-pyramid", "q05-farm"],
 ];
 
 const posOf = (id: string) => QUESTS.find((q) => q.id === id)?.mapPos ?? TEASERS.find((t) => t.id === id)?.mapPos;
