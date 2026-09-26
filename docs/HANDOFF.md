@@ -23,7 +23,7 @@ Minecraft Education（以下マイクラEE）の横に並べて使う、クエ�
 |---|---|---|
 | ログイン | **Google アカウント（ドメイン制限なし）** | 当初は学校ドメインのみだったが、個人の Google アカウントも使えるよう変更。絞るときは `allowedDomains()` と環境変数の 2 か所 |
 | コード管理 | **GitHub**（`agrimuitobom/craft-quest`） | 野田先生の指定 |
-| Firebase プロジェクト | **`craft-quest-ef2ef`**（新規作成） | 既存プロジェクトとの相乗りは、ルールや Hosting の上書きの危険があるのでやめた |
+| Firebase プロジェクト | **`craft-quest-ef2ef`**（新規作成。`agrimuitobom@gmail.com` はプロジェクト数の上限のため、**別の Google アカウントで作成**） | 既存プロジェクトとの相乗りは、ルールや Hosting の上書きの危険があるのでやめた |
 | ホスティング | **Firebase Hosting** | GitHub Pages ではなく、Firebase にまとめる方針 |
 | バックエンド | **Firestore（asia-northeast1 / 東京）** | 無料の Spark プランで収まる想定 |
 | 公開の流れ | main に push → GitHub Actions（ルールのテスト → ビルド → Hosting へ公開） | Pull Request ではプレビュー用の URL を発行する |
@@ -94,6 +94,7 @@ Minecraft Education（以下マイクラEE）の横に並べて使う、クエ�
 
 - **Secret 名の手間：** `init hosting:github` が作る Secret は `FIREBASE_SERVICE_ACCOUNT_<ID>` という名前で、同梱のワークフローが使う名前と違う。いまは手で登録し直す手順にしている。ワークフロー側を合わせた方が楽かもしれない。
 - **だれでもログインできる：** ドメイン制限をなくしたので、URL を知っていれば校外の人もログインしてデータを作れる（自分の分だけ）。先生画面の生徒一覧にも出てくる。困るようなら `allowedDomains()` で絞るか、先生画面をクラスで絞り込む。
+- **Firebase CLI のアカウント：** 先生の Mac の CLI は `agrimuitobom@gmail.com`（farm-dashboard 側）でログインしている。craft-quest を操作するときは `firebase login:use` で作成したアカウントに切り替える。
 - **2026-09-26 の事故：** `npm run deploy:rules` が、先生の PC で `firebase use` に選ばれていた `farm-dashboard-95875` に公開され、そちらのルールを上書きした。コンソールのルール履歴から戻してもらう。再発防止に `deploy:rules` へ `--project craft-quest-ef2ef` を付けた。
 - **EXP の改ざん：** EXP の計算がブラウザ側なので、生徒が値を改ざんできる（ルールで型と範囲だけ制限している）。成績に使うなら Cloud Functions に移す必要があるが、そうすると Blaze プラン（従量課金）が必要になる。
 - **先生の閲覧範囲：** 先生は全クラスを閲覧できる。担当クラスだけに絞るなら `teachers/{email}.classes` を追加する。
