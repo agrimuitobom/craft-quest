@@ -76,12 +76,12 @@ npx firebase login          # ブラウザで先生のアカウントを選ぶ
 ## 5. 手元で動作確認（任意）
 
 ```bash
-cp .env.example .env.local   # 手順 1-4 の 6 つの値とドメインを記入
-npm run dev                  # http://localhost:3000
+npm run dev   # http://localhost:3000
 ```
 
 - `http://localhost` は Firebase Authentication の「承認済みドメイン」に最初から入っているので、そのままログインできます
-- `.env.local` がないと「ローカルモード」（ログインなし・ブラウザ保存）で起動します
+- Firebase の設定値はリポジトリの `.env` に入っているので、ファイルを作る必要はありません（別のプロジェクトを使うときは `.env` を書き換える）
+- ログインなしの「ローカルモード」で動かすときは、`.env.local` に `NEXT_PUBLIC_FIREBASE_API_KEY=` の 1 行を書きます
 
 ## 6. GitHub に置いて自動公開を設定
 
@@ -96,7 +96,7 @@ git remote add origin https://github.com/<ユーザー名>/craft-quest.git
 git push -u origin main
 ```
 
-この時点では、まだ設定が足りないため Actions は失敗します（次の 6-2, 6-3 で直ります）。
+この時点では、まだ設定が足りないため Actions は失敗します（次の 6-2 で直ります）。
 
 ### 6-2. デプロイ用の鍵を GitHub に登録（コマンド 1 つ）
 
@@ -118,21 +118,13 @@ GitHub のリポジトリ → **Settings → Secrets and variables → Actions �
 
 > `firebase init` が `.github/workflows/` に別のファイルを作った場合は削除してください（同梱の `deploy.yml` だけを使います）。
 
-### 6-3. Firebase の設定値を登録
+### 6-3. Firebase の設定値（登録は不要）
 
-リポジトリ → **Settings → Secrets and variables → Actions → Variables** タブ →「New repository variable」で 7 つ登録：
+Firebase の設定値はリポジトリの `.env` に入っていて、ビルドのときにそのまま使われます。GitHub の Variables に登録する必要はありません。
+これらは Web ページに埋め込まれる公開値なので、リポジトリに入れて問題ありません。データの保護はセキュリティルールで行っています。
 
-| Name | 値 |
-|---|---|
-| `NEXT_PUBLIC_FIREBASE_API_KEY` | apiKey |
-| `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` | authDomain |
-| `NEXT_PUBLIC_FIREBASE_PROJECT_ID` | projectId |
-| `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET` | storageBucket |
-| `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` | messagingSenderId |
-| `NEXT_PUBLIC_FIREBASE_APP_ID` | appId |
-| `NEXT_PUBLIC_ALLOWED_EMAIL_DOMAIN` | 学校ドメイン（`allowedDomains()` と同じ）。制限しないときは空のまま |
-
-> これらは Web ページに埋め込まれる公開値なので Variables で問題ありません。データの保護はセキュリティルールで行っています。
+> `deploy.yml` に `NEXT_PUBLIC_*` の `env` を書かないでください。空の値でも `.env` より優先され、ログインできないページが公開されてしまいます。
+> 別のプロジェクトに公開するときは、`.env`・`.firebaserc`・`deploy.yml` の `projectId` の 3 か所を書き換えます。
 
 ### 6-4. 公開
 

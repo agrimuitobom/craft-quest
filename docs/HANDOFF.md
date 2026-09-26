@@ -30,7 +30,8 @@ Minecraft Education（以下マイクラEE）の横に並べて使う、クエ�
 | Next.js | `output: "export"` の静的書き出し | Hosting に置くため。`/quest/[id]` は `generateStaticParams` で事前に生成する |
 | 先生の判定 | Firestore の `teachers/{メールアドレス}` が存在するか | コンソールで手動登録する。先生は閲覧のみで、書き換えはできない |
 | 旧・先生モード（PIN） | **廃止** | 先生アカウントでの判定に置き換えた |
-| ローカルモード | `.env.local` がないときは LocalStorage 保存・ログインなしで動く | 開発とデモ用。このモードでは模範解答が常に表示される |
+| 設定値 | Firebase の設定値はリポジトリの `.env` に入れる | 公開値なので問題ない。先生の PC で `.env.local` を作る手間と、GitHub の Variables 登録をなくすため |
+| ローカルモード | `.env.local` に `NEXT_PUBLIC_FIREBASE_API_KEY=` と書くと LocalStorage 保存・ログインなしで動く | 開発とデモ用。このモードでは模範解答が常に表示される |
 
 ## 3. いまの実装状況
 
@@ -83,8 +84,8 @@ Minecraft Education（以下マイクラEE）の横に並べて使う、クエ�
    - `firestore.rules` の `allowedDomains()` を空のリストにし、`NEXT_PUBLIC_ALLOWED_EMAIL_DOMAIN` も空にした
    - あとで学校ドメインに絞るときは、この 2 か所に同じドメインを入れる
 4. ~~`.firebaserc` を書き換える~~（`craft-quest-ef2ef` に設定済み）→ `npm run deploy:rules`
-5. `.env.local` を作って `npm run dev` → 実際のアカウントでログイン・保存・先生画面を確認する
-6. `npx firebase init hosting:github` → Secret の `FIREBASE_SERVICE_ACCOUNT` と Variables 7 つを登録 → Actions を緑にする
+5. `npm run dev`（設定値は `.env` に入っている） → 実際のアカウントでログイン・保存・先生画面を確認する
+6. `npx firebase init hosting:github` → Secret の `FIREBASE_SERVICE_ACCOUNT` を登録（Variables は不要になった） → Actions を緑にする
    - `firebase init` がワークフローファイルを追加で作ったら削除する（同梱の `deploy.yml` だけを使う）
 7. `DEPLOY.md` の「授業前チェックリスト」を実施する
    - 特に、Workspace 側で外部アプリへのログインがブロックされていないか

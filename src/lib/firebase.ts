@@ -1,6 +1,6 @@
 // ============================================================
 // Firebase 初期化（クライアント専用）
-// 設定値は .env.local / GitHub Secrets の NEXT_PUBLIC_FIREBASE_* から読む。
+// 設定値はリポジトリの .env（.env.local があればそちらが優先）の NEXT_PUBLIC_FIREBASE_* から読む。
 // 未設定のときは「ローカルモード」（LocalStorage のみ）で動く。
 // ============================================================
 import { getApp, getApps, initializeApp, type FirebaseApp } from "firebase/app";

@@ -14,11 +14,11 @@ npm install
 npm run dev     # → http://localhost:3000
 ```
 
-`.env.local` がない状態では **ローカルモード**（ログインなし・進捗はブラウザに保存・模範解答は常に表示）で動きます。
+`.env` の Firebase の設定値を空にすると **ローカルモード**（ログインなし・進捗はブラウザに保存・模範解答は常に表示）で動きます。
 
 ## Firebase につなぐ
 
-`.env.example` を `.env.local` にコピーして値を入れると、Google ログイン＋Firestore 保存に切り替わります。詳しくは [DEPLOY.md](docs/DEPLOY.md)。
+リポジトリの `.env` に Firebase の設定値が入っているので、`npm run dev` だけで Google ログイン＋Firestore 保存で動きます。ローカルモードにするときは、`.env.local` に `NEXT_PUBLIC_FIREBASE_API_KEY=` の 1 行を書きます。詳しくは [DEPLOY.md](docs/DEPLOY.md)。
 
 ## コマンド
 
