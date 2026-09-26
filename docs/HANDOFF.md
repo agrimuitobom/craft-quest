@@ -60,18 +60,19 @@ Minecraft Education（以下マイクラEE）の横に並べて使う、クエ�
 
 ### 確認できていないこと（最優先で確認）
 
-作業環境から Google のサーバーにつながらず、次の 2 と 3 はまだ動かせていません（1 は確認済み）。
+1 と 2 は確認済み。3 が残っています。
 
 1. ~~`npm run test:rules` を一度も実行できていない~~ → **2026-09-26 に実行し、16 項目すべて合格**
    - 原因は `node --test tests/` の書き方だった（Node 22 ではフォルダを指定できない）
    - `node --test tests/*.test.mjs` に直した。ルール本体の直しは不要だった
-2. **実際の Google ログイン → Firestore 保存の流れ**
+2. ~~実際の Google ログイン → Firestore 保存の流れ~~ → **2026-09-26 に先生の PC で確認。個人の Gmail でログインし、プロフィール登録まで成功**
    - ポップアップのログインが apis.google.com に届かなかった
    - 2026-09-26：本番の設定値でビルドが通ること、Firestore が作成済みで未ログインの読み取りが拒否されることは確認した
    - クラウドの作業環境からは `*.firebaseapp.com` への接続が遮断されるため、ログインは先生の PC で確認する
 3. **GitHub Actions の初回の結果が未確認**
    - push は済んでいる
-   - Variables と Secrets がまだ未登録なので、公開ジョブは失敗しているはず（想定どおり）
+   - Secret がまだ未登録なので、公開ジョブは失敗しているはず（想定どおり）
+   - main への push で本番公開される。いまの作業は `claude/eager-franklin-g9tg3b` ブランチにある
 
 ## 4. 次にやること（優先順）
 
@@ -85,14 +86,13 @@ Minecraft Education（以下マイクラEE）の横に並べて使う、クエ�
    - あとで学校ドメインに絞るときは、この 2 か所に同じドメインを入れる
 4. ~~`.firebaserc` を書き換える~~（`craft-quest-ef2ef` に設定済み）→ `npm run deploy:rules`
 5. `npm run dev`（設定値は `.env` に入っている） → 実際のアカウントでログイン・保存・先生画面を確認する
-6. `npx firebase init hosting:github` → Secret の `FIREBASE_SERVICE_ACCOUNT` を登録（Variables は不要になった） → Actions を緑にする
+6. `npx firebase init hosting:github`（Secret `FIREBASE_SERVICE_ACCOUNT_CRAFT_QUEST_EF2EF` が自動登録される。Variables は不要） → Actions を緑にする
    - `firebase init` がワークフローファイルを追加で作ったら削除する（同梱の `deploy.yml` だけを使う）
 7. `DEPLOY.md` の「授業前チェックリスト」を実施する
    - 特に、Workspace 側で外部アプリへのログインがブロックされていないか
 
 ### B. 気になっている点（直す候補）
 
-- **Secret 名の手間：** `init hosting:github` が作る Secret は `FIREBASE_SERVICE_ACCOUNT_<ID>` という名前で、同梱のワークフローが使う名前と違う。いまは手で登録し直す手順にしている。ワークフロー側を合わせた方が楽かもしれない。
 - **だれでもログインできる：** ドメイン制限をなくしたので、URL を知っていれば校外の人もログインしてデータを作れる（自分の分だけ）。先生画面の生徒一覧にも出てくる。困るようなら `allowedDomains()` で絞るか、先生画面をクラスで絞り込む。
 - **Firebase CLI のアカウント：** 先生の Mac の CLI は `agrimuitobom@gmail.com`（farm-dashboard 側）でログインしている。craft-quest を操作するときは `firebase login:use` で作成したアカウントに切り替える。
 - **2026-09-26 の事故：** `npm run deploy:rules` が、先生の PC で `firebase use` に選ばれていた `farm-dashboard-95875` に公開され、そちらのルールを上書きした。コンソールのルール履歴から戻してもらう。再発防止に `deploy:rules` へ `--project craft-quest-ef2ef` を付けた。

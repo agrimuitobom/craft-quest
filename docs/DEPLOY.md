@@ -115,9 +115,9 @@ npx firebase init hosting:github
 | Set up the workflow to run a build script before every deploy? | **No**（ワークフローは同梱済み） |
 | Set up automatic deployment to your site's live channel when a PR is merged? | **No** |
 
-これで GitHub の Secrets に `FIREBASE_SERVICE_ACCOUNT_<プロジェクトID>` という名前の鍵が登録されます。
-GitHub のリポジトリ → **Settings → Secrets and variables → Actions → Secrets** で、この値を **`FIREBASE_SERVICE_ACCOUNT`** という名前でもう 1 つ登録し直してください（同梱のワークフローはこの名前を使います）。
-※ 上書きが面倒な場合は `.github/workflows/deploy.yml` の `secrets.FIREBASE_SERVICE_ACCOUNT` を、作成された名前に書き換えても OK です。
+これで GitHub の Secrets に `FIREBASE_SERVICE_ACCOUNT_CRAFT_QUEST_EF2EF` という名前の鍵が登録されます。同梱のワークフローはこの名前を使うので、登録し直す必要はありません。
+※ 別のプロジェクトに公開するときは、`deploy.yml` の `secrets.FIREBASE_SERVICE_ACCOUNT_…` をそのプロジェクトの名前に書き換えます。
+※ craft-quest を作った Google アカウントで Firebase CLI にログインした状態で実行してください（`npx firebase login:use …`）。
 
 > `firebase init` が `.github/workflows/` に別のファイルを作った場合は削除してください（同梱の `deploy.yml` だけを使います）。
 

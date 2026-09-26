@@ -48,6 +48,7 @@ jobs:
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          # `npx firebase init hosting:github` が登録する名前（プロジェクト ID を大文字・_ にしたもの）
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_CRAFT_QUEST_EF2EF }}
           projectId: craft-quest-ef2ef
           channelId: ${{ github.event_name == 'push' && 'live' || '' }}
