@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "test:rules": "firebase emulators:exec --only firestore --project demo-craft-quest \"node --test tests/*.test.mjs\"",
-    "test:quests": "node --experimental-strip-types --no-warnings --test tests/quests.test.mts",
+    "test:quests": "node --experimental-strip-types --no-warnings --test tests/*.test.mts",
     "emulators": "firebase emulators:start --only auth,firestore --project demo-craft-quest",
     "deploy:rules": "firebase deploy --only firestore:rules --project craft-quest-ef2ef"
   },

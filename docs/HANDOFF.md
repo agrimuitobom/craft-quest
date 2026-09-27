@@ -50,8 +50,10 @@ Minecraft Education（以下マイクラEE）の横に並べて使う、クエ�
   - `users/{uid}/events` に学習ログ（start / hint / fail / clear）を追記する
 - クリア時のふりかえり（v0.3）：つまずいたところ・のりこえ方を選び、ひとことを書く。先生画面と CSV で見られる
   - ルールを変えたので、先生の PC で `npm run deploy:rules` が必要（CI では反映されない）
+- 先生画面のつまずき分析（v0.4）：学習ログからクリアまでの時間・失敗・ヒントのタイミング、いま止まっている生徒
+  - 先生が全員のログを読めるルールを足したので、先生の PC で `npm run deploy:rules` が必要
 - 先生用画面 `/teacher`：クエストごとのクリア数、ヒント段階の分布、声かけ候補、生徒一覧、CSV 出力（BOM 付き UTF-8）
-- `firestore.rules` と、そのテスト 21 項目（`tests/firestore.rules.test.mjs`）
+- `firestore.rules` と、そのテスト 22 項目（`tests/firestore.rules.test.mjs`）
 - `.github/workflows/deploy.yml`、`docs/DEPLOY.md`
 
 ### 確認済みのこと（クラウドの作業環境で実施）
@@ -111,7 +113,6 @@ Minecraft Education（以下マイクラEE）の横に並べて使う、クエ�
 
 ### C. 機能の拡張候補（野田先生と相談のうえで）
 
-- `events` を使ったつまずき分析（クエストごと・ヒント段階ごとの所要時間）
 - 先生が JSON からクエストを追加できる画面
 
 ## 5. 触るときの注意（CLAUDE.md の要点）

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { collection, getDocs, Timestamp } from "firebase/firestore";
 import { Download, GraduationCap, NotebookPen, RefreshCw, TriangleAlert } from "lucide-react";
 import { useProgress } from "@/components/ProgressProvider";
+import { TeacherAnalytics } from "@/components/TeacherAnalytics";
 import { getFirebase } from "@/lib/firebase";
 import { QUESTS } from "@/data/quests";
 import { levelFromExp } from "@/data/rewards";
@@ -201,6 +202,9 @@ export default function TeacherPage() {
           );
         })}
       </section>
+
+      {/* つまずき分析（学習ログ） */}
+      <TeacherAnalytics students={shown} />
 
       {/* ふりかえり */}
       <section className="panel" aria-labelledby="reflect-list-h">

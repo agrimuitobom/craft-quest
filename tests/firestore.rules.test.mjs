@@ -3,7 +3,7 @@
 import { readFileSync } from "node:fs";
 import { after, before, beforeEach, test } from "node:test";
 import { assertFails, assertSucceeds, initializeTestEnvironment } from "@firebase/rules-unit-testing";
-import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
+import { addDoc, collection, collectionGroup, deleteDoc, doc, getDoc, getDocs, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
 
 const rules = readFileSync(new URL("../firestore.rules", import.meta.url), "utf8");
 const DOMAIN = "example.ed.jp";
@@ -124,6 +124,14 @@ test("ふりかえりつきの進捗を保存できる", async () => {
 });
 test("他人の学習ログは書けない", async () => {
   await assertFails(addDoc(collection(student("taro"), "users", "hanako", "events"), { type: "clear", questId: "q01-fence", at: serverTimestamp() }));
+});
+test("先生は全員の学習ログをまとめて読める（生徒はできない）", async () => {
+  await env.withSecurityRulesDisabled(async (ctx) => {
+    await addDoc(collection(ctx.firestore(), "users", "hanako", "events"), { type: "start", questId: "q01-fence", at: new Date() });
+  });
+  await assertSucceeds(getDocs(collectionGroup(teacher(), "events")));
+  await assertFails(getDocs(collectionGroup(student("hanako"), "events")));
+  await assertFails(getDocs(collectionGroup(gmailUser(), "events")));
 });
 test("先生名簿は自分の分だけ確認でき、一覧はできない", async () => {
   await assertSucceeds(getDoc(doc(teacher(), "teachers", `sensei@${DOMAIN}`)));

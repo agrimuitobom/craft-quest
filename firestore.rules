@@ -113,6 +113,11 @@ service cloud.firestore {
       }
     }
 
+    // ---------- 学習ログの一括読み込み（先生のつまずき分析用・collectionGroup） ----------
+    match /{path=**}/events/{eventId} {
+      allow read: if isTeacher();
+    }
+
     // ---------- 先生名簿（自分のドキュメントの有無だけ確認できる） ----------
     match /teachers/{email} {
       allow get: if signedIn() && myEmail() == email;
