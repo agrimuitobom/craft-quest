@@ -16,7 +16,9 @@ export type Concept =
   | "condition" // 条件分岐
   | "function" // 関数
   | "event" // イベント（チャットコマンド）
-  | "algorithm"; // アルゴリズム
+  | "algorithm" // アルゴリズム
+  | "random" // 乱数
+  | "list"; // リスト
 
 /** NPC のセリフ（ストーリー演出） */
 export interface NpcLine {
@@ -79,7 +81,7 @@ export interface QuestReward {
 export interface Quest {
   id: string;
   /** ワールドマップ上のエリア */
-  area: "meadow" | "village" | "desert" | "cave";
+  area: "meadow" | "forest" | "village" | "desert" | "cave";
   tier: Tier;
   order: number;
   title: string;
@@ -191,7 +193,24 @@ export interface Badge {
   id: string;
   name: string;
   description: string;
-  icon: "Footprints" | "Repeat" | "Construction" | "Pyramid" | "Wheat" | "Route" | "Castle" | "Sparkles" | "Flame" | "Brain" | "Crown";
+  icon:
+    | "Footprints"
+    | "Repeat"
+    | "Construction"
+    | "FlameKindling"
+    | "Fence"
+    | "Axe"
+    | "Pyramid"
+    | "Dices"
+    | "Wheat"
+    | "Route"
+    | "Castle"
+    | "Rainbow"
+    | "House"
+    | "Sparkles"
+    | "Flame"
+    | "Brain"
+    | "Crown";
   color: string;
 }
 

@@ -7,7 +7,7 @@
   "required": ["id", "area", "tier", "order", "title", "mapPos", "prerequisites", "concepts", "story", "objective", "goals", "starter", "hints", "validation", "reward", "solution"],
   "properties": {
     "id": { "type": "string", "pattern": "^q\\d{2}-[a-z0-9-]+$", "description": "一意なID（例: q01-fence）" },
-    "area": { "enum": ["meadow", "village", "desert", "cave"] },
+    "area": { "enum": ["meadow", "forest", "village", "desert", "cave"] },
     "tier": { "enum": ["beginner", "intermediate", "advanced"] },
     "order": { "type": "integer", "minimum": 1 },
     "title": { "type": "string", "maxLength": 30 },
@@ -19,7 +19,7 @@
     "prerequisites": { "type": "array", "items": { "type": "string" }, "description": "すべてクリア済みで available になる" },
     "concepts": {
       "type": "array",
-      "items": { "enum": ["sequence", "loop", "nested-loop", "variable", "condition", "function", "event", "algorithm"] },
+      "items": { "enum": ["sequence", "loop", "nested-loop", "variable", "condition", "function", "event", "algorithm", "random", "list"] },
       "minItems": 1
     },
     "estimatedMinutes": { "type": "integer", "minimum": 5 },

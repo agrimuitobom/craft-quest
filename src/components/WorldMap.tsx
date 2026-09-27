@@ -17,11 +17,8 @@ const NODE_STYLE: Record<QuestStatus, string> = {
   mastered: "bg-gold-500 text-stone-900",
 };
 
-// 道のつながり（id の順につなぐ）
-const PATHS: string[][] = [
-  ["q01-fence", "q04-bridge", "q02-pyramid", "q03-maze", "q06-castle"],
-  ["q02-pyramid", "q05-farm"],
-];
+// 道のつながり：番号（order）の順につなぐ
+const PATHS: string[][] = [[...QUESTS].sort((a, b) => a.order - b.order).map((q) => q.id)];
 
 const posOf = (id: string) => QUESTS.find((q) => q.id === id)?.mapPos ?? TEASERS.find((t) => t.id === id)?.mapPos;
 
@@ -30,14 +27,16 @@ export function WorldMap() {
 
   return (
     <div
-      className="relative aspect-[4/5] w-full overflow-hidden rounded-xl border-4 border-stone-700 sm:aspect-[16/10]"
+      className="relative aspect-[3/5] w-full overflow-hidden rounded-xl border-4 border-stone-700 sm:aspect-[16/10]"
     >
       {/* エリア背景 */}
       <div className="absolute inset-0 bg-grass-600" />
+      <div className="absolute left-0 top-0 h-[44%] w-[30%] rounded-br-[45%] bg-grass-700" aria-hidden />
       <div className="absolute left-[30%] top-0 h-[62%] w-[45%] rounded-b-[40%] bg-[#e4c77a]" aria-hidden />
       <div className="absolute bottom-0 right-0 h-[70%] w-[32%] rounded-tl-[35%] bg-stone-700" aria-hidden />
       <div className="absolute right-[4%] top-[6%] h-[24%] w-[22%] rounded-xl bg-dirt-500/70" aria-hidden />
-      <AreaLabel x={6} y={90} text="はじまりの草原" />
+      <AreaLabel x={30} y={94} text="はじまりの草原" />
+      <AreaLabel x={3} y={5} text="まよいの森" />
       <AreaLabel x={44} y={6} text="灼熱の砂漠" />
       <AreaLabel x={72} y={92} text="地下迷宮" />
       <AreaLabel x={78} y={4} text="クラフト村" />
@@ -86,9 +85,14 @@ export function WorldMap() {
               </span>
             )}
             <span
-              className={`flex h-12 w-12 items-center justify-center rounded-md font-pixel text-2xl shadow-block sm:h-16 sm:w-16 ${NODE_STYLE[status]}`}
+              className={`relative flex h-12 w-12 items-center justify-center rounded-md font-pixel text-2xl shadow-block sm:h-16 sm:w-16 ${NODE_STYLE[status]}`}
             >
               {locked ? <Lock aria-hidden /> : status === "mastered" ? <Crown aria-hidden /> : status === "cleared" ? <Check strokeWidth={3} aria-hidden /> : status === "in_progress" ? <Swords aria-hidden /> : q.order}
+              {status !== "available" && (
+                <span className="absolute -left-2 -top-2 rounded bg-stone-900 px-1 font-sans text-[11px] leading-4 text-white" aria-hidden>
+                  {q.order}
+                </span>
+              )}
             </span>
             {stars > 0 && (
               <span className="mt-1 flex gap-0.5" aria-label={`星 ${stars} つ`}>
@@ -97,7 +101,11 @@ export function WorldMap() {
                 ))}
               </span>
             )}
-            <span className="mt-1 w-max max-w-[8rem] sm:max-w-[10rem] rounded bg-stone-900/80 px-2 py-0.5 text-center text-[11px] leading-tight sm:text-xs">
+            <span
+              className={`mt-1 w-max max-w-[8rem] rounded bg-stone-900/80 px-2 py-0.5 text-center text-[11px] leading-tight sm:block sm:max-w-[10rem] sm:text-xs ${
+                status === "available" || status === "in_progress" ? "block" : "hidden"
+              }`}
+            >
               {q.title}
             </span>
           </>
