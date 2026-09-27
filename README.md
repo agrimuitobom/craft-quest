@@ -27,7 +27,7 @@ npm run dev     # → http://localhost:3000
 | `npm run dev` | 開発サーバー |
 | `npm run build` | 静的 HTML を `out/` に書き出し（Firebase Hosting 用） |
 | `npm run test:rules` | Firestore セキュリティルールのテスト（Java 11 以上が必要。GitHub Actions でも自動実行） |
-| `npm run test:quests` | クエスト定義のテスト（模範解答が合格し、ひな形のままでは不合格になるか。GitHub Actions でも自動実行） |
+| `npm run test:quests` | クエスト定義（模範解答が合格し、ひな形のままでは不合格になるか）と、つまずき分析の集計のテスト。GitHub Actions でも自動実行 |
 | `npm run emulators` | Auth / Firestore エミュレーターを起動（`.env.local` に `NEXT_PUBLIC_USE_EMULATORS=1`） |
 | `npm run deploy:rules` | セキュリティルールを本番に反映 |
 
