@@ -90,9 +90,9 @@ player.on_chat("fence", on_on_chat)`,
     ],
     validation: {
       codeRules: [
-        { type: "contains", pattern: String.raw`player\.on_chat\(\s*["']fence["']`, message: "チャットコマンド「fence」が見つからないよ" },
+        { type: "contains", pattern: String.raw`player\.on_chat\(\s*["']fence["']`, flags: "i", message: "チャットコマンド「fence」が見つからないよ" },
         { type: "contains", pattern: String.raw`\b(for|while)\b|loops\.repeat`, message: "「くりかえし」が使われていないみたい" },
-        { type: "contains", pattern: String.raw`range\(\s*10\s*\)|<\s*10\b`, message: "くりかえす回数は 10 回になっているかな？" },
+        { type: "contains", pattern: String.raw`range\(\s*(?:0\s*,\s*)?10\s*\)|range\(\s*1\s*,\s*11\s*\)|<\s*1[01]\b|<=\s*(?:9|10)\b`, message: "くりかえす回数は 10 回になっているかな？" },
         { type: "maxCount", pattern: String.raw`agent\.place\(`, max: 1, message: "置く命令が 2 回以上書かれているよ。くりかえしにまとめよう" },
       ],
       observations: [
@@ -196,11 +196,11 @@ player.on_chat("bridge", on_on_chat)`,
     ],
     validation: {
       codeRules: [
-        { type: "contains", pattern: String.raw`player\.on_chat\(\s*["']bridge["']`, message: "チャットコマンド「bridge」が見つからないよ" },
+        { type: "contains", pattern: String.raw`player\.on_chat\(\s*["']bridge["']`, flags: "i", message: "チャットコマンド「bridge」が見つからないよ" },
         { type: "contains", pattern: String.raw`def\s+\w+\(\s*num1`, message: "チャットの数字を受け取る num1 が関数の（ ）に入っていないよ" },
         { type: "contains", pattern: String.raw`\b(for|while)\b`, message: "「くりかえし」が使われていないみたい" },
         { type: "notContains", pattern: String.raw`range\(\s*\d+\s*\)`, message: "くりかえす回数が数字で決まっているよ。チャットで打った数字を使おう" },
-        { type: "contains", pattern: String.raw`range\(\s*num1\s*\)|<\s*num1\b`, message: "くりかえす回数に num1 が使われていないよ" },
+        { type: "contains", pattern: String.raw`range\(\s*(?:0\s*,\s*)?num1\s*\)|<=?\s*num1\b`, message: "くりかえす回数に num1 が使われていないよ" },
         { type: "maxCount", pattern: String.raw`agent\.place\(`, max: 1, message: "置く命令が 2 回以上書かれているよ。くりかえしにまとめよう" },
       ],
       observations: [
@@ -295,9 +295,9 @@ player.on_chat("torch", on_on_chat)`,
     ],
     validation: {
       codeRules: [
-        { type: "contains", pattern: String.raw`player\.on_chat\(\s*["']torch["']`, message: "チャットコマンド「torch」が見つからないよ" },
-        { type: "contains", pattern: String.raw`range\(\s*10\s*\)`, message: "10 本になるように、くりかえす回数を確かめよう" },
-        { type: "contains", pattern: String.raw`pos\([^\n]*\b(i|index)\b[^\n]*\*\s*3|pos\([^\n]*\b3\s*\*\s*\(?\s*(i|index)\b`, message: "置く場所が、i といっしょに 3 マスずつずれていないよ" },
+        { type: "contains", pattern: String.raw`player\.on_chat\(\s*["']torch["']`, flags: "i", message: "チャットコマンド「torch」が見つからないよ" },
+        { type: "contains", pattern: String.raw`range\(\s*(?:0\s*,\s*)?10\s*\)|range\(\s*1\s*,\s*11\s*\)|<\s*1[01]\b|<=\s*(?:9|10)\b`, message: "10 本になるように、くりかえす回数を確かめよう" },
+        { type: "contains", pattern: String.raw`pos\([^\n]*\*\s*3\b|pos\([^\n]*\b3\s*\*|\+=\s*3\b|\b(\w+)\s*=\s*\1\s*\+\s*3\b`, message: "置く場所が 3 マスずつずれていないよ" },
         { type: "maxCount", pattern: String.raw`blocks\.place\(`, max: 1, message: "置く命令が 2 回以上書かれているよ。くりかえしにまとめよう" },
       ],
       observations: [
@@ -402,9 +402,9 @@ player.on_chat("pen", on_on_chat)`,
     ],
     validation: {
       codeRules: [
-        { type: "contains", pattern: String.raw`player\.on_chat\(\s*["']pen["']`, message: "チャットコマンド「pen」が見つからないよ" },
-        { type: "minCount", pattern: String.raw`\bfor\b`, min: 2, message: "1 辺ぶんのくりかえしを、もう 1 つのくりかえしで包もう" },
-        { type: "minCount", pattern: String.raw`range\(\s*4\s*\)`, min: 2, message: "4 辺ぶんくりかえしているかな？" },
+        { type: "contains", pattern: String.raw`player\.on_chat\(\s*["']pen["']`, flags: "i", message: "チャットコマンド「pen」が見つからないよ" },
+        { type: "minCount", pattern: String.raw`\b(for|while)\b`, min: 2, message: "1 辺ぶんのくりかえしを、もう 1 つのくりかえしで包もう" },
+        { type: "minCount", pattern: String.raw`range\(\s*(?:0\s*,\s*)?4\s*\)|range\(\s*1\s*,\s*5\s*\)|<\s*[45]\b|<=\s*[34]\b`, min: 2, message: "4 辺ぶんくりかえしているかな？" },
         { type: "contains", pattern: String.raw`agent\.turn\(`, message: "エージェントを曲げる命令が見つからないよ" },
         { type: "maxCount", pattern: String.raw`agent\.place\(`, max: 1, message: "置く命令が 2 回以上書かれているよ。くりかえしにまとめよう" },
         { type: "maxCount", pattern: String.raw`agent\.turn\(`, max: 1, message: "曲がる命令が 2 回以上書かれているよ。くりかえしにまとめよう" },
@@ -512,11 +512,11 @@ agent.move(DOWN, ______)`,
     ],
     validation: {
       codeRules: [
-        { type: "contains", pattern: String.raw`player\.on_chat\(\s*["']chop["']`, message: "チャットコマンド「chop」が見つからないよ" },
+        { type: "contains", pattern: String.raw`player\.on_chat\(\s*["']chop["']`, flags: "i", message: "チャットコマンド「chop」が見つからないよ" },
         { type: "contains", pattern: String.raw`\bwhile\b`, message: "「〜のあいだくりかえす（while）」が見つからないよ" },
         { type: "contains", pattern: String.raw`agent\.(detect|inspect)\(`, message: "前にブロックがあるかを調べる命令（agent.detect）が見つからないよ" },
-        { type: "contains", pattern: String.raw`<=?\s*\d{2,}`, message: "のぼる回数の上限（例：height < 20）を入れよう" },
-        { type: "contains", pattern: String.raw`agent\.move\(\s*DOWN\s*,\s*[a-z_]\w*\s*\)`, message: "のぼった回数の変数を使って、下りてきているかな？" },
+        { type: "contains", pattern: String.raw`\w+\s*<=?\s*\d+`, message: "のぼる回数の上限（例：height < 20）を入れよう" },
+        { type: "contains", pattern: String.raw`agent\.move\(\s*DOWN\s*,\s*[a-z_]\w*\s*\)|range\(\s*[a-z_]\w*\s*\)[^\n]*:\s*\n\s*agent\.move\(\s*DOWN`, message: "のぼった回数の変数を使って、下りてきているかな？" },
         { type: "maxCount", pattern: String.raw`agent\.destroy\(`, max: 1, message: "こわす命令が 2 回以上書かれているよ。くりかえしにまとめよう" },
       ],
       observations: [
@@ -626,11 +626,11 @@ player.on_chat("pyramid", on_on_chat)`,
     ],
     validation: {
       codeRules: [
-        { type: "contains", pattern: String.raw`player\.on_chat\(\s*["']pyramid["']`, message: "チャットコマンド「pyramid」が見つからないよ" },
+        { type: "contains", pattern: String.raw`player\.on_chat\(\s*["']pyramid["']`, flags: "i", message: "チャットコマンド「pyramid」が見つからないよ" },
         { type: "contains", pattern: String.raw`blocks\.fill\(`, message: "blocks.fill（うめる）を使ってみよう" },
         { type: "maxCount", pattern: String.raw`blocks\.fill\(`, max: 1, message: "fill が何回も書かれているよ。1 回にしてループでくりかえそう" },
         { type: "contains", pattern: String.raw`\b(while|for)\b`, message: "くりかえしが見つからないよ" },
-        { type: "contains", pattern: String.raw`size\s*(-=\s*2|=\s*size\s*-\s*2)`, message: "1 段ごとに size を 2 ずつ小さくしているかな？" },
+        { type: "contains", pattern: String.raw`-=\s*2\b|=\s*(\w+)\s*-\s*2\b|-\s*2\s*\*|-\s*\w+\s*\*\s*2\b`, message: "1 段ごとに size を 2 ずつ小さくしているかな？" },
       ],
       observations: [
         "5 段のピラミッドができた",
@@ -732,7 +732,7 @@ else:
     ],
     validation: {
       codeRules: [
-        { type: "contains", pattern: String.raw`player\.on_chat\(\s*["']dice["']`, message: "チャットコマンド「dice」が見つからないよ" },
+        { type: "contains", pattern: String.raw`player\.on_chat\(\s*["']dice["']`, flags: "i", message: "チャットコマンド「dice」が見つからないよ" },
         { type: "contains", pattern: String.raw`randint\(`, message: "サイコロの乱数（randint）が見つからないよ" },
         { type: "contains", pattern: String.raw`\bif\b`, message: "「もし〜なら（if）」が見つからないよ" },
         { type: "contains", pattern: String.raw`\belif\b`, message: "「そうでなくてもし（elif）」で、3 つに分けよう" },
@@ -740,7 +740,7 @@ else:
         { type: "contains", pattern: String.raw`\bDIAMOND_BLOCK\b`, message: "ダイヤモンドブロック（DIAMOND_BLOCK）が見つからないよ" },
         { type: "contains", pattern: String.raw`\bGOLD_BLOCK\b`, message: "金ブロック（GOLD_BLOCK）が見つからないよ" },
         { type: "contains", pattern: String.raw`==\s*6\b|>=\s*6\b|>\s*5\b`, message: "6 が出たときの条件が見つからないよ" },
-        { type: "contains", pattern: String.raw`>=\s*4\b|>\s*3\b|==\s*[45]\b`, message: "4 か 5 が出たときの条件が見つからないよ" },
+        { type: "contains", pattern: String.raw`>=\s*4\b|>\s*3\b|==\s*[45]\b|\bin\s*[\[(]\s*4\b`, message: "4 か 5 が出たときの条件が見つからないよ" },
       ],
       observations: [
         "サイコロの目がチャットに出た",
@@ -846,7 +846,7 @@ player.on_chat("farm", on_on_chat)`,
     ],
     validation: {
       codeRules: [
-        { type: "contains", pattern: String.raw`player\.on_chat\(\s*["']farm["']`, message: "チャットコマンド「farm」が見つからないよ" },
+        { type: "contains", pattern: String.raw`player\.on_chat\(\s*["']farm["']`, flags: "i", message: "チャットコマンド「farm」が見つからないよ" },
         { type: "minCount", pattern: String.raw`\bfor\b`, min: 2, message: "くりかえしの中に、もう 1 つくりかえしを入れよう（二重ループ）" },
         { type: "contains", pattern: String.raw`\bif\b`, message: "水と土を使い分ける「もし〜なら（if）」が見つからないよ" },
         { type: "contains", pattern: String.raw`\bWATER\b`, message: "水路にする WATER が見つからないよ" },
@@ -985,7 +985,7 @@ player.on_chat("escape", on_on_chat)`,
     ],
     validation: {
       codeRules: [
-        { type: "contains", pattern: String.raw`player\.on_chat\(\s*["']escape["']`, message: "チャットコマンド「escape」が見つからないよ" },
+        { type: "contains", pattern: String.raw`player\.on_chat\(\s*["']escape["']`, flags: "i", message: "チャットコマンド「escape」が見つからないよ" },
         { type: "contains", pattern: String.raw`agent\.detect\(`, message: "カベを調べる agent.detect が使われていないよ" },
         { type: "contains", pattern: String.raw`\bwhile\b`, message: "「〜のあいだくりかえす（while）」を使おう" },
         { type: "minCount", pattern: String.raw`^\s*def\s+\w+`, flags: "m", min: 2, message: "チャットコマンド以外に、自分の関数を 1 つ以上作ろう" },
@@ -1112,11 +1112,11 @@ blocks.fill(STONE_BRICKS, pos(5, 0, 3), pos(13, 4, 3), FillOperation.REPLACE)`,
     ],
     validation: {
       codeRules: [
-        { type: "contains", pattern: String.raw`player\.on_chat\(\s*["']castle["']`, message: "チャットコマンド「castle」が見つからないよ" },
+        { type: "contains", pattern: String.raw`player\.on_chat\(\s*["']castle["']`, flags: "i", message: "チャットコマンド「castle」が見つからないよ" },
         { type: "contains", pattern: String.raw`def\s+make_tower\(\s*\w+\s*,\s*\w+\s*\)`, message: "（x, z）を受け取る関数 make_tower が見つからないよ" },
         { type: "minCount", pattern: String.raw`^\s*make_tower\(`, flags: "m", min: 4, message: "make_tower を 4 回よび出して、4 すみに塔を建てよう" },
         { type: "contains", pattern: String.raw`FillOperation\.HOLLOW`, message: "塔の中を空洞にする HOLLOW が見つからないよ" },
-        { type: "contains", pattern: String.raw`\bx\s*\+\s*2\b|\b2\s*\+\s*x\b`, message: "塔の反対側の角は x + いくつ？ 3×3 になるように考えよう" },
+        { type: "contains", pattern: String.raw`\b[a-z_]\w*\s*\+\s*2\b|\b2\s*\+\s*[a-z_]\w*\b`, message: "塔の反対側の角は x + いくつ？ 3×3 になるように考えよう" },
         { type: "minCount", pattern: String.raw`blocks\.fill\(`, min: 2, message: "城壁がまだないみたい。塔と塔のあいだも fill でうめよう" },
       ],
       observations: [
@@ -1218,7 +1218,7 @@ player.on_chat("rainbow", on_on_chat)`,
     ],
     validation: {
       codeRules: [
-        { type: "contains", pattern: String.raw`player\.on_chat\(\s*["']rainbow["']`, message: "チャットコマンド「rainbow」が見つからないよ" },
+        { type: "contains", pattern: String.raw`player\.on_chat\(\s*["']rainbow["']`, flags: "i", message: "チャットコマンド「rainbow」が見つからないよ" },
         { type: "contains", pattern: String.raw`=\s*\[`, message: "色をまとめるリスト（colors = [ ... ]）が見つからないよ" },
         { type: "minCount", pattern: String.raw`\b[A-Z_]+_WOOL\b`, min: 7, message: "7 色ぜんぶリストに入っているかな？" },
         { type: "contains", pattern: String.raw`\bfor\b`, message: "くりかえしが見つからないよ" },
@@ -1325,12 +1325,12 @@ for i in range(__):
     ],
     validation: {
       codeRules: [
-        { type: "contains", pattern: String.raw`player\.on_chat\(\s*["']town["']`, message: "チャットコマンド「town」が見つからないよ" },
+        { type: "contains", pattern: String.raw`player\.on_chat\(\s*["']town["']`, flags: "i", message: "チャットコマンド「town」が見つからないよ" },
         { type: "contains", pattern: String.raw`def\s+make_house\(\s*\w+\s*,\s*\w+\s*\)`, message: "（x, z）を受け取る関数 make_house が見つからないよ" },
         { type: "contains", pattern: String.raw`\bAIR\b`, message: "入口のあな（AIR）が見つからないよ" },
         { type: "contains", pattern: String.raw`\bfor\b`, message: "くりかえしが見つからないよ" },
-        { type: "contains", pattern: String.raw`range\(\s*5\s*\)`, message: "家は 5 けんになっているかな？" },
-        { type: "contains", pattern: String.raw`make_house\([^)\n]*\*\s*8|make_house\([^)\n]*\b8\s*\*`, message: "建てる場所が、i といっしょに 8 マスずつずれていないよ" },
+        { type: "contains", pattern: String.raw`range\(\s*(?:0\s*,\s*)?5\s*\)|range\(\s*1\s*,\s*6\s*\)|<\s*[56]\b|<=\s*[45]\b`, message: "家は 5 けんになっているかな？" },
+        { type: "contains", pattern: String.raw`make_house\([^)\n]*\*\s*8|make_house\([^)\n]*\b8\s*\*|\+=\s*8\b|\b(\w+)\s*=\s*\1\s*\+\s*8\b`, message: "建てる場所が 8 マスずつずれていないよ" },
         { type: "maxCount", pattern: String.raw`^\s*make_house\(`, flags: "m", max: 1, message: "make_house を何回も書かずに、くりかえしの中で 1 回だけよぼう" },
       ],
       observations: [

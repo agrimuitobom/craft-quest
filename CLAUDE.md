@@ -33,6 +33,7 @@ Minecraft Education と並べて使うクエスト型プログラミング学習
 
 - ヒントは答えを直接教えない（観察 → 焦点 → 穴あきコードの3段階）
 - 検証ルールの message は「何が足りないか」だけを伝える
+- 検証ルールは模範解答の書き方にしばらない。別の正しい書き方は `tests/quests.test.mts` の `ALTERNATIVES` に足して、合格することを確かめる
 - マイクラのコードは MakeCode for Minecraft の Python 表記に合わせる
 - 生徒の個人情報は増やさない（メール・Google 表示名・クラス・番号・ニックネームまで）
 - 仕様は `docs/SPEC.md`、公開手順は `docs/DEPLOY.md` に反映する
